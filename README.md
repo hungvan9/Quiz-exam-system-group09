@@ -1,6 +1,6 @@
 # lab1-group09
 ## 📖 Giới thiệu dự án
-Dự án này là bài tập nhóm thuộc học phần Phân tích Thiết kế Hệ thống. Mục tiêu của đồ án là phân tích yêu cầu, định hình các tác nhân (Actors) và xây dựng **Biểu đồ Use Case (Use Case Diagram)** cùng **Tài liệu Đặc tả kịch bản (Use Case Specification)** cho hệ thống diễn đàn trao đổi học tập nội bộ.
+Dự án này là bài tập nhóm thuộc học phần Công nghệ phần mềm . Mục tiêu của đồ án là phân tích yêu cầu, định hình các tác nhân (Actors) và xây dựng **Biểu đồ Use Case (Use Case Diagram)** cùng **Tài liệu Đặc tả kịch bản (Use Case Specification)** cho hệ thống diễn đàn trao đổi học tập nội bộ.
 
 Hệ thống cung cấp các chức năng cốt lõi bao gồm:
 * Quản lý người dùng: Đăng ký, đăng nhập, quản lý thông tin thành viên.
