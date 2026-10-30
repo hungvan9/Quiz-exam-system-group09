@@ -13,10 +13,10 @@ Quiz Examination System là một ứng dụng phần mềm được xây dựng
 | STT | Họ và tên | Mã số sinh viên | Vai trò / Phân công chính |
 | :---: | :--- | :---: | :--- |
 | 1 | Phan Văn Hưng | 089205018167 | Trưởng nhóm / Phân tích Requirements & Use Case |
-| 2 | [Tên TV 2] | [MSSV] | Phân tích Luồng dữ liệu (DFD) & Kiến trúc phần mềm |
-| 3 | [Tên TV 3] | [MSSV] | Thiết kế Cấu trúc (Class Diagram) & Database |
-| 4 | [Tên TV 4] | [MSSV] | Thiết kế Giao diện (GUI Design) |
-| 5 | [Tên TV 5] | [MSSV] | QA / Viết đặc tả Use Case & Tổng hợp tài liệu |
+| 2 | Nguyễn Thành Vinh | 040204023121 | Phân tích Luồng dữ liệu (DFD) & Kiến trúc phần mềm |
+| 3 | Võ Bảo Long | 040206001273 | Thiết kế Cấu trúc (Class Diagram) & Database |
+| 4 | Lưu Lương Gia Kỳ | 091207001923 | Thiết kế Giao diện (GUI Design) |
+| 5 | Nguyễn Đăng Khoa | 091207009078 | QA / Viết đặc tả Use Case & Tổng hợp tài liệu |
 
 ---
 
