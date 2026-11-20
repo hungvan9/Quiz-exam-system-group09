@@ -1,1 +1,519 @@
+.exam-interface {
+  background-color: #ffffff;
+  width: 100%;
+  min-width: 1440px;
+  min-height: 1024px;
+  position: relative;
+}
+.exam-interface .rectangle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1440px;
+  height: 81px;
+  background-color: #87d6ea;
+}
+.exam-interface .gemini-generated {
+  position: absolute;
+  top: 5px;
+  left: 0;
+  width: 92px;
+  height: 71px;
+  aspect-ratio: 1.5;
+  object-fit: cover;
+}
+.exam-interface .text-wrapper {
+  position: absolute;
+  top: 29px;
+  left: 77px;
+  font-family: "Inter-Regular", Helvetica;
+  font-weight: 400;
+  color: #2525ca;
+  font-size: 20px;
+  letter-spacing: 0;
+  line-height: normal;
+  white-space: nowrap;
+}
+.exam-interface .div {
+  position: absolute;
+  top: 895px;
+  left: 925px;
+  font-family: "Inter-Regular", Helvetica;
+  font-weight: 400;
+  color: #ffffff;
+  font-size: 20px;
+  letter-spacing: 0;
+  line-height: 25px;
+  white-space: nowrap;
+}
+.exam-interface .thi-gian-v-np-bi {
+  display: inline-flex;
+  align-items: center;
+  gap: 56px;
+  position: absolute;
+  top: 6px;
+  left: 849px;
+}
+.exam-interface .m-ngc {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  flex: 0 0 auto;
+}
+.exam-interface .clock {
+  position: relative;
+  width: 34px;
+  height: 34px;
+}
+.exam-interface .vector {
+  position: absolute;
+  width: 94.32%;
+  height: 94.32%;
+  top: 5.68%;
+  left: 5.68%;
+}
+.exam-interface .n-i-dung {
+  margin-top: -1px;
+  font-family: "Inter-SemiBold", Helvetica;
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 28px;
+  line-height: 42px;
+  position: relative;
+  width: fit-content;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.exam-interface .np-bi {
+  display: inline-flex;
+  height: 70px;
+  align-items: center;
+  padding: 0px 34px;
+  position: relative;
+  flex: 0 0 auto;
+  background-color: #3886f5;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.exam-interface .n-i-dung-2 {
+  font-family: "Inter-SemiBold", Helvetica;
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 25px;
+  line-height: 37.5px;
+  position: relative;
+  width: fit-content;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.exam-interface .th-ni-dung {
+  display: flex;
+  flex-direction: column;
+  width: 849px;
+  height: 943px;
+  align-items: flex-start;
+  gap: 32px;
+  padding: 36px;
+  position: absolute;
+  top: 81px;
+  left: 0;
+  background-color: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid;
+  border-color: #dfeaf8;
+}
+.exam-interface .n-i-dung-3 {
+  margin-top: -1px;
+  font-family: "Inter-SemiBold", Helvetica;
+  font-weight: 600;
+  color: #082b63;
+  font-size: 28px;
+  line-height: 42px;
+  position: relative;
+  width: fit-content;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.exam-interface .ni-dung-cu-hi {
+  display: flex;
+  height: 116px;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+}
+.exam-interface .p {
+  font-family: "Inter-Regular", Helvetica;
+  font-weight: 400;
+  color: #082b63;
+  font-size: 27px;
+  line-height: 40.5px;
+  position: relative;
+  width: fit-content;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.exam-interface .cc-phng-n-tr-li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+  flex: 0 0 auto;
+}
+.exam-interface .phng-n-tr-li {
+  display: flex;
+  height: 80px;
+  align-items: center;
+  gap: 24px;
+  padding: 0px 24px;
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid;
+  border-color: #dfeaf8;
+}
+.exam-interface .nt-chn-p-n {
+  position: relative;
+  width: 29px;
+  height: 29px;
+  background-color: #ffffff;
+  border-radius: 100px;
+  border: 2px solid;
+  border-color: #9ab5da;
+}
+.exam-interface .n-i-dung-4 {
+  position: relative;
+  width: fit-content;
+  font-family: "Inter-Regular", Helvetica;
+  font-weight: 400;
+  color: #082b63;
+  font-size: 23px;
+  letter-spacing: 0;
+  line-height: 34.5px;
+  white-space: nowrap;
+}
+.exam-interface .phng-n-tr-li-2 {
+  display: flex;
+  height: 80px;
+  align-items: center;
+  gap: 24px;
+  padding: 0px 24px;
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+  background-color: #eaf3ff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid;
+  border-color: #237cfa;
+}
+.exam-interface .chn-wrapper {
+  display: flex;
+  width: 29px;
+  height: 29px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: #237cfa;
+  border-radius: 100px;
+  overflow: hidden;
+  border: 2px solid;
+}
+.exam-interface .chn {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  background-color: #ffffff;
+  border-radius: 5.5px;
+}
+.exam-interface .n-i-dung-5 {
+  font-family: "Inter-SemiBold", Helvetica;
+  font-weight: 600;
+  color: #0862dc;
+  font-size: 23px;
+  line-height: 34.5px;
+  position: relative;
+  width: fit-content;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.exam-interface .iu-hng-cu-hi {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 32px 0px 0px;
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+  flex: 0 0 auto;
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-color: #dfeaf8;
+}
+.exam-interface .nt-hnh-ng {
+  display: inline-flex;
+  height: 60px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0px 22px;
+  position: relative;
+  flex: 0 0 auto;
+  background-color: #f3f8ff;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid;
+  border-color: #bcd3f0;
+}
+.exam-interface .vector-wrapper {
+  position: relative;
+  width: 22px;
+  height: 22px;
+}
+.exam-interface .img {
+  position: absolute;
+  width: 84.96%;
+  height: 83.26%;
+  top: 16.74%;
+  left: 15.04%;
+}
+.exam-interface .n-i-dung-6 {
+  font-family: "Inter-SemiBold", Helvetica;
+  font-weight: 600;
+  color: #237cfa;
+  font-size: 20px;
+  line-height: 30px;
+  position: relative;
+  width: fit-content;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.exam-interface .n-i-dung-wrapper {
+  display: inline-flex;
+  height: 60px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0px 22px;
+  position: relative;
+  flex: 0 0 auto;
+  background-color: #237cfa;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid;
+}
+.exam-interface .n-i-dung-7 {
+  font-family: "Inter-SemiBold", Helvetica;
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 20px;
+  line-height: 30px;
+  position: relative;
+  width: fit-content;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.exam-interface .nh-du-cu-hi {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 0px 0px;
+  position: relative;
+  flex: 0 0 auto;
+}
+.exam-interface .nh-du {
+  display: flex;
+  width: 29px;
+  height: 29px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: #237cfa;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.exam-interface .vector-2 {
+  position: absolute;
+  width: 87.42%;
+  height: 79.09%;
+  top: 20.91%;
+  left: 12.58%;
+}
+.exam-interface .n-i-dung-8 {
+  margin-top: -1px;
+  font-family: "Inter-Regular", Helvetica;
+  font-weight: 400;
+  color: #082b63;
+  font-size: 20px;
+  line-height: 30px;
+  position: relative;
+  width: fit-content;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.exam-interface .th-ni-dung-2 {
+  display: flex;
+  flex-direction: column;
+  width: 580px;
+  height: 932px;
+  align-items: flex-start;
+  gap: 36px;
+  padding: 28px;
+  position: absolute;
+  top: 92px;
+  left: 860px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid;
+  border-color: #dfeaf8;
+}
+.exam-interface .n-i-dung-9 {
+  margin-top: -1px;
+  font-family: "Inter-SemiBold", Helvetica;
+  font-weight: 600;
+  color: #082b63;
+  font-size: 26px;
+  line-height: 39px;
+  position: relative;
+  width: fit-content;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.exam-interface .ch-thch-trng-thi {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+  flex: 0 0 auto;
+}
+.exam-interface .trng-thi {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  flex: 0 0 auto;
+}
+.exam-interface .ch-bo-trng-thi {
+  position: relative;
+  width: 17px;
+  height: 17px;
+  background-color: #27bf8d;
+  border-radius: 4px;
+}
+.exam-interface .n-i-dung-10 {
+  margin-top: -1px;
+  font-family: "Inter-Regular", Helvetica;
+  font-weight: 400;
+  color: #082b63;
+  font-size: 15px;
+  line-height: 22.5px;
+  position: relative;
+  width: fit-content;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.exam-interface .ch-bo-trng-thi-2 {
+  background-color: #b9d3f6;
+  position: relative;
+  width: 17px;
+  height: 17px;
+  border-radius: 4px;
+}
+.exam-interface .ch-bo-trng-thi-3 {
+  background-color: #ff5d70;
+  position: relative;
+  width: 17px;
+  height: 17px;
+  border-radius: 4px;
+}
+.exam-interface .li-cu-hi {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+  flex: 0 0 auto;
+}
+.exam-interface .hng-cu-hi {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+.exam-interface .s-cu-hi {
+  display: flex;
+  height: 68px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex: 1;
+  flex-grow: 1;
+  background-color: #80d58c;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid;
+  border-color: #65cb7c;
+}
+.exam-interface .div-wrapper {
+  background-color: #237cfa;
+  display: flex;
+  height: 68px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex: 1;
+  flex-grow: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid;
+}
+.exam-interface .n-i-dung-11 {
+  font-family: "Inter-Regular", Helvetica;
+  font-weight: 400;
+  color: #ffffff;
+  font-size: 23px;
+  line-height: 34.5px;
+  position: relative;
+  width: fit-content;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.exam-interface .s-cu-hi-2 {
+  background-color: #f6f9fd;
+  border-color: #dfeaf8;
+  display: flex;
+  height: 68px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex: 1;
+  flex-grow: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid;
+}
+.exam-interface .khong-trng-danh-sch {
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+  height: 250px;
+}
 
