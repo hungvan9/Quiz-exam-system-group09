@@ -14,14 +14,38 @@
     />
     <style>
       .nt-hnh-ng,
+      .frame-2,
       .frame-3,
-      .frame-4 {
+      .frame-4,
+      .frame-5,
+      .frame-6,
+      .frame-7 {
         cursor: pointer;
       }
       .nav-active-tab {
         background: #2563eb;
         border-radius: 12px;
         padding: 10px 14px;
+      }
+      .danh-sch-thi .navbar,
+      .danh-sch-thi .thi {
+        display: grid !important;
+        grid-template-columns: 55px 1.2fr 1.8fr 105px 85px 185px !important;
+        align-items: center !important;
+        column-gap: 12px !important;
+        padding: 14px 20px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        height: auto !important;
+      }
+      .danh-sch-thi .navbar > div,
+      .danh-sch-thi .thi > div {
+        width: auto !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        text-align: left !important;
+        word-break: break-word;
+        position: static !important;
       }
       .teacher-modal-backdrop {
         position: fixed;
@@ -126,7 +150,6 @@
         color: #991b1b;
       }
 
-      /* Question Bank View */
       .qb-grid {
         display: grid;
         grid-template-columns: 320px 1fr;
@@ -138,8 +161,11 @@
         background: #ffffff;
         border: 1px solid #e5e7eb;
         border-radius: 14px;
-        padding: 16px;
+        padding: 18px;
         box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        width: 100%;
+        box-sizing: border-box;
+        font-family: sans-serif;
       }
       .qb-set-item {
         padding: 12px;
@@ -169,6 +195,45 @@
         font-weight: 600;
         background: #e0e7ff;
         color: #3730a3;
+      }
+      .ws-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      .ws-table th {
+        text-align: left;
+        padding: 12px;
+        background: #eef2ff;
+        color: #1e3a8a;
+      }
+      .ws-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e5e7eb;
+        color: #1f2937;
+      }
+      .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .profile-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 14px 18px;
+      }
+      .profile-box .lbl {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .profile-box .val {
+        font-size: 16px;
+        color: #0f172a;
+        font-weight: 600;
+        margin-top: 4px;
       }
     </style>
   </head>
@@ -237,7 +302,11 @@
           />
           <div class="text-wrapper-8">Question bank</div>
         </div>
-        <div class="frame-5">
+        <div
+          class="frame-5"
+          id="navClassTab"
+          onclick="switchTeacherTab('classes')"
+        >
           <img
             class="img"
             src="{{ url_for('static', filename='img/University.png') }}"
@@ -245,7 +314,11 @@
           />
           <div class="text-wrapper-6">Class</div>
         </div>
-        <div class="frame-6">
+        <div
+          class="frame-6"
+          id="navResultTab"
+          onclick="switchTeacherTab('results')"
+        >
           <img
             class="img"
             src="{{ url_for('static', filename='img/Ratings.png') }}"
@@ -253,7 +326,11 @@
           />
           <div class="text-wrapper-6">result</div>
         </div>
-        <div class="frame-7">
+        <div
+          class="frame-7"
+          id="navProfileTab"
+          onclick="switchTeacherTab('profile')"
+        >
           <div class="frame-4">
             <img
               class="img"
@@ -364,7 +441,6 @@
         </div>
 
         <div class="qb-grid">
-          <!-- Left: Question Sets -->
           <div class="qb-card">
             <div
               style="
@@ -379,7 +455,6 @@
             <div id="questionSetList">Loading question sets...</div>
           </div>
 
-          <!-- Right: Questions inside selected set -->
           <div class="qb-card">
             <div
               style="
@@ -417,6 +492,150 @@
               <p style="color: #6b7280; font-size: 14px">
                 No question set selected yet.
               </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: CLASS, SUBJECTS & SYLLABUSES -->
+      <div class="ni-dung-trang" id="classSection" style="display: none">
+        <div class="tiu-trang">
+          <div class="ti-u">Class, Subjects &amp; Syllabuses</div>
+          <div class="nt-hnh-ng" onclick="openCreateSyllabusModal()">
+            <div class="vector-wrapper">
+              <img
+                class="vector"
+                src="{{ url_for('static', filename='img/plus.png') }}"
+                alt=""
+              />
+            </div>
+            <div class="n-i-dung">New Syllabus</div>
+          </div>
+        </div>
+        <div class="qb-card" style="margin-bottom: 18px">
+          <div
+            style="
+              font-weight: 700;
+              font-size: 16px;
+              color: #1e3a8a;
+              margin-bottom: 12px;
+            "
+          >
+            Available Subjects (Managed by Admin)
+          </div>
+          <table class="ws-table">
+            <thead>
+              <tr>
+                <th>Subject ID</th>
+                <th>Subject Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody id="teacherSubjectsBody">
+              <tr>
+                <td colspan="3">Loading subjects...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="qb-card" style="margin-bottom: 18px">
+          <div
+            style="
+              font-weight: 700;
+              font-size: 16px;
+              color: #1e3a8a;
+              margin-bottom: 12px;
+            "
+          >
+            My Syllabuses (Used when creating exams)
+          </div>
+          <table class="ws-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Syllabus Title</th>
+                <th>Subject</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="teacherSyllabusesBody">
+              <tr>
+                <td colspan="4">Loading syllabuses...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="qb-card">
+          <div
+            style="
+              font-weight: 700;
+              font-size: 16px;
+              color: #1e3a8a;
+              margin-bottom: 12px;
+            "
+          >
+            Enrolled Students
+          </div>
+          <table class="ws-table">
+            <thead>
+              <tr>
+                <th>Student Code</th>
+                <th>Full Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="teacherStudentsBody">
+              <tr>
+                <td colspan="5">Loading students...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 4: STUDENT RESULTS -->
+      <div class="ni-dung-trang" id="resultSection" style="display: none">
+        <div class="tiu-trang">
+          <div class="ti-u">Student Exam Results</div>
+        </div>
+        <div class="qb-card">
+          <table class="ws-table">
+            <thead>
+              <tr>
+                <th>Attempt #</th>
+                <th>Student</th>
+                <th>Exam Title</th>
+                <th>Submitted At</th>
+                <th>Status</th>
+                <th>Score (/10)</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody id="teacherResultsBody">
+              <tr>
+                <td colspan="7">Loading exam results...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 5: PERSONAL PROFILE -->
+      <div class="ni-dung-trang" id="profileSection" style="display: none">
+        <div class="tiu-trang">
+          <div class="ti-u">Teacher Personal Profile</div>
+        </div>
+        <div class="qb-card">
+          <div class="profile-grid" id="teacherProfileGrid">
+            <div class="profile-box">
+              <div class="lbl">Full Name</div>
+              <div class="val">{{ session.get('name', 'Teacher') }}</div>
+            </div>
+            <div class="profile-box">
+              <div class="lbl">Username</div>
+              <div class="val">{{ session.get('username', 'teacher') }}</div>
             </div>
           </div>
         </div>
@@ -484,8 +703,10 @@
             placeholder="e.g., Chapter 1 - Software Process"
           />
 
-          <label>Subject ID</label>
-          <input type="number" name="subject_id" min="1" value="1" required />
+          <label>Subject</label>
+          <select name="subject_id" id="bankSubjectSelect" required>
+            <option value="1">1 - Software Engineering</option>
+          </select>
 
           <label>Difficulty Level</label>
           <select name="difficulty_level">
@@ -534,7 +755,7 @@
             name="marks"
             step="0.5"
             min="0.5"
-            value="1"
+            value="2"
             required
           />
 
@@ -573,10 +794,50 @@
       </div>
     </div>
 
+    <!-- Modal 4: Create Syllabus for a Subject -->
+    <div class="teacher-modal-backdrop" id="createSyllabusModal">
+      <div class="teacher-modal">
+        <h3>Create New Syllabus</h3>
+        <form id="createSyllabusForm" onsubmit="submitCreateSyllabus(event)">
+          <label>Subject</label>
+          <select name="subject_id" id="syllabusSubjectSelect" required>
+            <option value="1">1 - Software Engineering</option>
+          </select>
+
+          <label>Syllabus Title</label>
+          <input
+            type="text"
+            name="title"
+            required
+            placeholder="e.g., Giáo trình Giải tích 1"
+          />
+
+          <label>Description</label>
+          <textarea
+            name="description"
+            rows="2"
+            placeholder="Course outline..."
+          ></textarea>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn-cancel"
+              onclick="closeModal('createSyllabusModal')"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn-save">Create Syllabus</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script>
       let cachedExams = [];
+      let cachedSubjects = [];
       let selectedBankId = null;
-      let questionTargetMode = "bank"; // "bank" or "exam"
+      let questionTargetMode = "bank";
       let targetExamId = null;
 
       function closeModal(id) {
@@ -584,16 +845,163 @@
       }
 
       function switchTeacherTab(tab) {
-        const examSec = document.getElementById("examManagementSection");
-        const qbSec = document.getElementById("questionBankSection");
+        const sections = {
+          exams: "examManagementSection",
+          question_bank: "questionBankSection",
+          classes: "classSection",
+          results: "resultSection",
+          profile: "profileSection",
+        };
+        Object.entries(sections).forEach(([key, secId]) => {
+          const el = document.getElementById(secId);
+          if (el) el.style.display = key === tab ? "flex" : "none";
+        });
+
+        if (tab === "exams") loadTeacherExams();
         if (tab === "question_bank") {
-          examSec.style.display = "none";
-          qbSec.style.display = "flex";
+          loadTeacherWorkspace();
           loadQuestionBanks();
+        }
+        if (tab === "classes" || tab === "results" || tab === "profile") {
+          loadTeacherWorkspace();
+        }
+      }
+
+      function populateSubjectDropdowns() {
+        if (!cachedSubjects.length) return;
+        const optionsHtml = cachedSubjects
+          .map(
+            (s) =>
+              `<option value="${s.subject_id}">${s.subject_id} - ${s.subject_name}</option>`,
+          )
+          .join("");
+        const bankSel = document.getElementById("bankSubjectSelect");
+        const sylSel = document.getElementById("syllabusSubjectSelect");
+        if (bankSel) bankSel.innerHTML = optionsHtml;
+        if (sylSel) sylSel.innerHTML = optionsHtml;
+      }
+
+      async function loadTeacherWorkspace() {
+        try {
+          const res = await fetch("/teacher/workspace");
+          const json = await res.json();
+          if (!json.success) return;
+
+          // 0. Render Subjects
+          cachedSubjects = Array.isArray(json.subjects) ? json.subjects : [];
+          populateSubjectDropdowns();
+          const subBody = document.getElementById("teacherSubjectsBody");
+          if (subBody) {
+            subBody.innerHTML = cachedSubjects.length
+              ? cachedSubjects
+                  .map(
+                    (sub) => `
+                            <tr>
+                                <td>#${sub.subject_id}</td>
+                                <td><strong>${sub.subject_name}</strong></td>
+                                <td>${sub.description || "-"}</td>
+                            </tr>
+                        `,
+                  )
+                  .join("")
+              : `<tr><td colspan="3" style="color:#6b7280;">No subjects available.</td></tr>`;
+          }
+
+          // 1. Render Syllabuses
+          const sylBody = document.getElementById("teacherSyllabusesBody");
+          const syllabuses = Array.isArray(json.syllabuses)
+            ? json.syllabuses
+            : [];
+          sylBody.innerHTML = syllabuses.length
+            ? syllabuses
+                .map(
+                  (s) => `
+                        <tr>
+                            <td>#${s.syllabus_id}</td>
+                            <td><strong>${s.title}</strong></td>
+                            <td>${s.subject_name || "Subject #" + s.subject_id}</td>
+                            <td><span class="badge-diff">${s.status || "PUBLISHED"}</span></td>
+                        </tr>
+                    `,
+                )
+                .join("")
+            : `<tr><td colspan="4" style="color:#6b7280;">No syllabuses found.</td></tr>`;
+
+          // 2. Render Students
+          const stuBody = document.getElementById("teacherStudentsBody");
+          const students = Array.isArray(json.students) ? json.students : [];
+          stuBody.innerHTML = students.length
+            ? students
+                .map(
+                  (st) => `
+                        <tr>
+                            <td><strong>${st.student_code || "STU-" + st.user_id}</strong></td>
+                            <td>${st.name || "-"}</td>
+                            <td>${st.username || "-"}</td>
+                            <td>${st.email || "-"}</td>
+                            <td style="color:#16a34a; font-weight:600;">${st.status || "ACTIVE"}</td>
+                        </tr>
+                    `,
+                )
+                .join("")
+            : `<tr><td colspan="5" style="color:#6b7280;">No students enrolled yet.</td></tr>`;
+
+          // 3. Render Student Results
+          const resBody = document.getElementById("teacherResultsBody");
+          const results = Array.isArray(json.results) ? json.results : [];
+          resBody.innerHTML = results.length
+            ? results
+                .map(
+                  (r) => `
+                        <tr>
+                            <td>#${r.attempt_id}</td>
+                            <td><strong>${r.student_name || r.student_username}</strong></td>
+                            <td>${r.exam_title}</td>
+                            <td>${r.submit_time || r.start_time || "-"}</td>
+                            <td>${r.attempt_status}</td>
+                            <td><strong>${r.score !== null && r.score !== undefined ? r.score : "-"}</strong></td>
+                            <td><span class="badge-diff">${r.grade || "-"}</span></td>
+                        </tr>
+                    `,
+                )
+                .join("")
+            : `<tr><td colspan="7" style="color:#6b7280;">No student submissions recorded yet.</td></tr>`;
+
+          // 4. Render Teacher Profile
+          const p = json.profile || {};
+          document.getElementById("teacherProfileGrid").innerHTML = `
+                    <div class="profile-box"><div class="lbl">Full Name</div><div class="val">${p.name || "-"}</div></div>
+                    <div class="profile-box"><div class="lbl">Role</div><div class="val">${p.role || "TEACHER"}</div></div>
+                    <div class="profile-box"><div class="lbl">Username</div><div class="val">${p.username || "-"}</div></div>
+                    <div class="profile-box"><div class="lbl">Email</div><div class="val">${p.email || "-"}</div></div>
+                    <div class="profile-box"><div class="lbl">Department / Title</div><div class="val">${p.department || p.title || "Software Engineering Faculty"}</div></div>
+                    <div class="profile-box"><div class="lbl">Account Status</div><div class="val" style="color:#16a34a;">${p.status || "ACTIVE"}</div></div>
+                `;
+        } catch (e) {}
+      }
+
+      function openCreateSyllabusModal() {
+        populateSubjectDropdowns();
+        document.getElementById("createSyllabusModal").classList.add("open");
+      }
+
+      async function submitCreateSyllabus(e) {
+        e.preventDefault();
+        const payload = Object.fromEntries(new FormData(e.target).entries());
+        payload.chapters = [];
+        const res = await fetch("/teacher/syllabuses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const json = await res.json();
+        if (json.success) {
+          closeModal("createSyllabusModal");
+          e.target.reset();
+          loadTeacherWorkspace();
+          loadTeacherSyllabuses();
         } else {
-          qbSec.style.display = "none";
-          examSec.style.display = "flex";
-          loadTeacherExams();
+          alert(json.message || "Failed to create syllabus");
         }
       }
 
@@ -661,6 +1069,7 @@
                         ${ex.status === "Draft" ? `<button class="action-pill pill-addq" onclick="openQuestionModal('exam', ${ex.exam_id})">+ Question</button>` : ""}
                         ${ex.status === "Draft" ? `<button class="action-pill pill-publish" onclick="publishExam(${ex.exam_id})">Publish</button>` : ""}
                         ${ex.status === "Draft" ? `<button class="action-pill pill-del" onclick="deleteExam(${ex.exam_id})">Delete</button>` : ""}
+                        ${ex.status !== "Draft" ? `<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600;">${ex.status} ✓</span>` : ""}
                     </div>
                 </div>
             `,
@@ -800,6 +1209,7 @@
       }
 
       function openCreateBankModal() {
+        populateSubjectDropdowns();
         document.getElementById("createBankModal").classList.add("open");
       }
 
@@ -875,7 +1285,10 @@
         }
       }
 
-      document.addEventListener("DOMContentLoaded", loadTeacherExams);
+      document.addEventListener("DOMContentLoaded", () => {
+        loadTeacherExams();
+        loadTeacherWorkspace();
+      });
     </script>
   </body>
 </html>

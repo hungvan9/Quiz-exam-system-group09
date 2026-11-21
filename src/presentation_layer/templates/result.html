@@ -12,6 +12,31 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='result-style.css') }}"
     />
+    <style>
+      .vng-im-s {
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      .vng-im-s .i-m {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        line-height: 1.05 !important;
+        z-index: 2;
+      }
+      .vng-im-s .n-i-dung-7 {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        margin-top: 2px !important;
+        z-index: 2;
+      }
+    </style>
   </head>
 
   <body>
@@ -49,13 +74,13 @@
       <div class="thng-k-kt-qu">
         <div class="ch-s-kt-qu">
           <div class="n-i-dung">
-            {{ result.correct_count if result else 17 }}
+            {{ result.correct_count if result else 0 }}
           </div>
           <div class="n-i-dung-2">correct sentence</div>
         </div>
         <div class="ch-s-kt-qu-2">
           <div class="n-i-dung-3">
-            {{ result.incorrect_count if result else 3 }}
+            {{ result.incorrect_count if result else 0 }}
           </div>
           <div class="n-i-dung-2">incorrect sentence</div>
         </div>
@@ -67,7 +92,7 @@
         </div>
         <div class="ch-s-kt-qu-2">
           <div class="n-i-dung-4">
-            {{ result.time_spent_minutes if result else 28 }} minute
+            {{ result.time_spent_minutes if result else 0 }} minute
           </div>
           <p class="p">Time allotted for the test</p>
         </div>
@@ -105,22 +130,30 @@
           />
           <div class="text-wrapper-7">Exam paper</div>
         </a>
-        <div class="frame-4">
+        <a
+          href="{{ url_for('student_dashboard', tab='practice') }}"
+          class="frame-4"
+          style="text-decoration: none"
+        >
           <img
             class="img"
             src="{{ url_for('static', filename='img/Light On.png') }}"
             alt=""
           />
           <div class="text-wrapper-7">practice</div>
-        </div>
-        <div class="frame-3">
+        </a>
+        <a
+          href="{{ url_for('student_dashboard', tab='history') }}"
+          class="frame-3"
+          style="text-decoration: none"
+        >
           <img
             class="img"
             src="{{ url_for('static', filename='img/Clock.png') }}"
             alt=""
           />
           <div class="text-wrapper-7">exam history</div>
-        </div>
+        </a>
         <div class="frame-5">
           <img
             class="img"
@@ -129,7 +162,11 @@
           />
           <div class="text-wrapper-8">result</div>
         </div>
-        <div class="frame-6">
+        <a
+          href="{{ url_for('student_dashboard', tab='profile') }}"
+          class="frame-6"
+          style="text-decoration: none"
+        >
           <div class="frame-4">
             <img
               class="img"
@@ -138,7 +175,7 @@
             />
           </div>
           <div class="text-wrapper-7">personal profile</div>
-        </div>
+        </a>
       </div>
       <div class="thng-tin-kt-qu">
         <div class="biu-tng-ni-dung">
@@ -152,28 +189,51 @@
         </div>
         <div class="thng-tin-bi-thi">
           <div class="n-i-dung-5">
-            {{ result.exam_title if result else 'Database' }}
+            {{ result.exam_title if result else 'Exam Result' }}
           </div>
           <p class="n-i-dung-6">
             Time allotted for the test {{ result.duration if result else 30 }}p
             |&nbsp;&nbsp;{{ result.start_time_str if result and
-            result.start_time_str else '28/10/2026 14:00' }} {% if result %} ·
-            Grade: <strong>{{ result.grade }}</strong>{% endif %}
+            result.start_time_str else '' }} {% if result %} · Grade:
+            <strong>{{ result.grade }}</strong>{% endif %}
           </p>
         </div>
         <div class="im-bi-thi">
+          {% set score_val = (result.score if result and result.score is not
+          none else 0) | float %} {% set pct = (score_val * 10) if score_val <=
+          10 else 100 %}
           <div class="vng-im-s">
-            <img
-              class="thang-im"
-              src="{{ url_for('static', filename='img/thang-i-m.svg') }}"
-              alt=""
-            />
-            <img
-              class="im-t-c"
-              src="{{ url_for('static', filename='img/Vòng điểm số.png') }}"
-              alt=""
-            />
-            <div class="i-m">{{ result.score if result else '8.5' }}</div>
+            <svg
+              viewBox="0 0 120 120"
+              style="
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                transform: rotate(-90deg);
+              "
+            >
+              <circle
+                cx="60"
+                cy="60"
+                r="52"
+                fill="#ffffff"
+                stroke="#e2f5ea"
+                stroke-width="9"
+              ></circle>
+              <circle
+                cx="60"
+                cy="60"
+                r="52"
+                fill="none"
+                stroke="#34c789"
+                stroke-width="9"
+                stroke-linecap="round"
+                stroke-dasharray="326.73"
+                stroke-dashoffset="{{ 326.73 * (1 - pct / 100.0) }}"
+              ></circle>
+            </svg>
+            <div class="i-m">{{ '%.1f'|format(score_val) }}</div>
             <div class="n-i-dung-7">/10</div>
           </div>
           <div class="n-i-dung-8">Score</div>
@@ -220,56 +280,10 @@
               {% endif %}
             </div>
           </div>
-          {% endfor %} {% else %}
-          <div class="chi-tit-cu-tr-li">
-            <div class="d-li-u-p-n">1</div>
-            <div class="d-li-u-p-n">B</div>
-            <div class="d-li-u-p-n">B</div>
-            <div class="kt-qu-cu-hi">
-              <div class="vector-wrapper">
-                <img
-                  class="vector-2"
-                  src="{{ url_for('static', filename='img/check.png') }}"
-                  alt=""
-                />
-              </div>
-              <div class="n-i-dung-10">true</div>
-            </div>
-          </div>
-          <div class="chi-tit-cu-tr-li">
-            <div class="d-li-u-p-n">2</div>
-            <div class="d-li-u-p-n">A</div>
-            <div class="d-li-u-p-n">A</div>
-            <div class="kt-qu-cu-hi">
-              <div class="vector-wrapper">
-                <img
-                  class="vector-2"
-                  src="{{ url_for('static', filename='img/check.png') }}"
-                  alt=""
-                />
-              </div>
-              <div class="n-i-dung-10">true</div>
-            </div>
-          </div>
-          <div class="chi-tit-cu-tr-li">
-            <div class="d-li-u-p-n">3</div>
-            <div class="d-li-u-p-n">C</div>
-            <div class="d-li-u-p-n">B</div>
-            <div class="kt-qu-cu-hi">
-              <div class="vector-wrapper">
-                <img
-                  class="vector-3"
-                  src="{{ url_for('static', filename='img/x.png') }}"
-                  alt=""
-                />
-              </div>
-              <div class="n-i-dung-11">false</div>
-            </div>
-          </div>
-          {% endif %}
+          {% endfor %} {% endif %}
         </div>
         <div class="n-i-dung-12">
-          Total: {{ result.total_questions if result else 5 }} questions
+          Total: {{ result.total_questions if result else 0 }} questions
         </div>
       </div>
     </div>

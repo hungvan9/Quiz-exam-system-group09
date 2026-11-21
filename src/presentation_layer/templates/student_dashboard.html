@@ -13,6 +13,13 @@
       href="{{ url_for('static', filename='student-style.css') }}"
     />
     <style>
+      .frame-5,
+      .frame-6,
+      .frame-7,
+      .frame-8,
+      .frame-9 {
+        cursor: pointer;
+      }
       .live-exam-list {
         position: absolute;
         top: 470px;
@@ -45,11 +52,82 @@
       .live-join-btn:hover {
         background: #4356e8;
       }
+      /* Sub-views for Practice, Exam History, Personal Profile */
+      .student-subview {
+        position: absolute;
+        top: 115px;
+        left: 315px;
+        width: 1060px;
+        max-width: calc(100vw - 345px);
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 28px 32px;
+        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+        font-family: sans-serif;
+        z-index: 30;
+        display: none;
+      }
+      .subview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 14px;
+      }
+      .subview-header h2 {
+        margin: 0;
+        font-size: 22px;
+        color: #111827;
+      }
+      .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      .history-table th {
+        text-align: left;
+        padding: 12px;
+        background: #eef2ff;
+        color: #1e3a8a;
+      }
+      .history-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e5e7eb;
+        color: #1f2937;
+      }
+      .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .profile-field {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 14px 16px;
+      }
+      .profile-field .lbl {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .profile-field .val {
+        font-size: 16px;
+        color: #0f172a;
+        font-weight: 600;
+        margin-top: 4px;
+      }
     </style>
   </head>
 
   <body>
-    <div class="student">
+    <div
+      class="student"
+      id="studentRoot"
+      data-initial-tab="{{ active_tab or 'home' }}"
+    >
       <div class="rectangle"></div>
       <div class="div"></div>
       <img
@@ -78,104 +156,206 @@
           >Logout</a
         >
       </div>
-      <div class="rectangle-3"></div>
-      <div class="text-wrapper-4">
-        HELLO {{ session.get('name', 'STUDENT') | upper }}
-      </div>
-      <div class="rectangle-4"></div>
-      <div class="rectangle-5"></div>
-      <div class="rectangle-6"></div>
-      <div class="rectangle-7"></div>
-      <div class="rectangle-8"></div>
-      <p class="p">the exam is in progress</p>
-      <p class="text-wrapper-5">The test has been completed.</p>
-      <div class="text-wrapper-6">average score</div>
-      <div class="text-wrapper-7">exam currently being taken</div>
-      <div class="text-wrapper-8" id="statAvailableCount">2</div>
-      <div class="text-wrapper-9">5</div>
-      <div class="text-wrapper-10">7.5</div>
-      <div class="text-wrapper-11">1</div>
-      <p class="text-wrapper-12">Available &amp; Upcoming Exams</p>
-      <div class="rectangle-9"></div>
-      <div class="rectangle-10"></div>
-      <div class="rectangle-11"></div>
-      <div class="text-wrapper-13">Object-oriented programming</div>
-      <div class="text-wrapper-14">Database</div>
-      <div class="text-wrapper-15">Operating System</div>
-      <div class="text-wrapper-16">Introduction to Information Technology</div>
-      <div class="rectangle-15"></div>
-      <div class="rectangle-16"></div>
-      <div class="rectangle-17"></div>
-      <div class="rectangle-18"></div>
-      <img
-        class="star-filled"
-        src="{{ url_for('static', filename='img/Search.png') }}"
-        alt=""
-      />
-      <img
-        class="img"
-        src="{{ url_for('static', filename='img/Test Passed.png') }}"
-        alt=""
-      />
-      <img
-        class="test-passed-2"
-        src="{{ url_for('static', filename='img/Test Passed.png') }}"
-        alt=""
-      />
-      <img
-        class="test-passed-3"
-        src="{{ url_for('static', filename='img/Test Passed.png') }}"
-        alt=""
-      />
-      <img
-        class="test-passed-4"
-        src="{{ url_for('static', filename='img/Test Passed.png') }}"
-        alt=""
-      />
-      <img
-        class="today"
-        src="{{ url_for('static', filename='img/Today.png') }}"
-        alt=""
-      />
-      <img
-        class="future"
-        src="{{ url_for('static', filename='img/Future.png') }}"
-        alt=""
-      />
-      <img
-        class="check-mark"
-        src="{{ url_for('static', filename='img/Check Mark.png') }}"
-        alt=""
-      />
 
-      <!-- Dynamic Published Exams List -->
-      <div class="live-exam-list" id="availableExamsList">
-        <div class="live-exam-row">
-          <div>
-            <div style="font-weight: 700; color: #111827; font-size: 16px">
-              Loading published exams...
-            </div>
-            <div style="font-size: 13px; color: #6b7280">
-              Fetching active schedule
+      <!-- HOME VIEW ELEMENTS -->
+      <div id="homeDashboardGroup">
+        <div class="rectangle-3"></div>
+        <div class="text-wrapper-4">
+          HELLO {{ session.get('name', 'STUDENT') | upper }}
+        </div>
+        <div class="rectangle-4"></div>
+        <div class="rectangle-5"></div>
+        <div class="rectangle-6"></div>
+        <div class="rectangle-7"></div>
+        <div class="rectangle-8"></div>
+        <p class="p">the exam is in progress</p>
+        <p class="text-wrapper-5">The test has been completed.</p>
+        <div class="text-wrapper-6">average score</div>
+        <div class="text-wrapper-7">exam currently being taken</div>
+        <div class="text-wrapper-8" id="statAvailableCount">0</div>
+        <div class="text-wrapper-9" id="statCompletedCount">0</div>
+        <div class="text-wrapper-10" id="statAvgScore">-</div>
+        <div class="text-wrapper-11" id="statInProgressCount">0</div>
+        <p class="text-wrapper-12">Available &amp; Upcoming Exams</p>
+        <div class="rectangle-9"></div>
+        <div class="rectangle-10"></div>
+        <div class="rectangle-11"></div>
+        <div class="text-wrapper-13">Object-oriented programming</div>
+        <div class="text-wrapper-14">Database</div>
+        <div class="text-wrapper-15">Operating System</div>
+        <div class="text-wrapper-16">
+          Introduction to Information Technology
+        </div>
+        <div class="rectangle-15"></div>
+        <div class="rectangle-16"></div>
+        <div class="rectangle-17"></div>
+        <div class="rectangle-18"></div>
+        <img
+          class="star-filled"
+          src="{{ url_for('static', filename='img/Search.png') }}"
+          alt=""
+        />
+        <img
+          class="img"
+          src="{{ url_for('static', filename='img/Test Passed.png') }}"
+          alt=""
+        />
+        <img
+          class="test-passed-2"
+          src="{{ url_for('static', filename='img/Test Passed.png') }}"
+          alt=""
+        />
+        <img
+          class="test-passed-3"
+          src="{{ url_for('static', filename='img/Test Passed.png') }}"
+          alt=""
+        />
+        <img
+          class="test-passed-4"
+          src="{{ url_for('static', filename='img/Test Passed.png') }}"
+          alt=""
+        />
+        <img
+          class="today"
+          src="{{ url_for('static', filename='img/Today.png') }}"
+          alt=""
+        />
+        <img
+          class="future"
+          src="{{ url_for('static', filename='img/Future.png') }}"
+          alt=""
+        />
+        <img
+          class="check-mark"
+          src="{{ url_for('static', filename='img/Check Mark.png') }}"
+          alt=""
+        />
+
+        <div class="live-exam-list" id="availableExamsList">
+          <div class="live-exam-row">
+            <div>
+              <div style="font-weight: 700; color: #111827; font-size: 16px">
+                Loading published exams...
+              </div>
+              <div style="font-size: 13px; color: #6b7280">
+                Fetching active schedule
+              </div>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- SUBVIEW 1: PRACTICE -->
+      <div class="student-subview" id="practiceSubview">
+        <div class="subview-header">
+          <h2>Practice Mode &amp; Self-Assessment</h2>
+          <button
+            type="button"
+            onclick="switchStudentTab('home')"
+            style="
+              border: none;
+              background: #e5e7eb;
+              padding: 8px 14px;
+              border-radius: 8px;
+              cursor: pointer;
+              font-weight: 600;
+            "
+          >
+            ← Back to Home
+          </button>
+        </div>
+        <p style="color: #4b5563; font-size: 14px; margin-bottom: 16px">
+          Select any available exam below to practice answering questions with
+          live timer and instant auto-grading:
+        </p>
+        <div
+          id="practiceExamsContainer"
+          style="display: flex; flex-direction: column; gap: 12px"
+        ></div>
+      </div>
+
+      <!-- SUBVIEW 2: EXAM HISTORY -->
+      <div class="student-subview" id="historySubview">
+        <div class="subview-header">
+          <h2>My Exam History</h2>
+          <button
+            type="button"
+            onclick="switchStudentTab('home')"
+            style="
+              border: none;
+              background: #e5e7eb;
+              padding: 8px 14px;
+              border-radius: 8px;
+              cursor: pointer;
+              font-weight: 600;
+            "
+          >
+            ← Back to Home
+          </button>
+        </div>
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Attempt #</th>
+              <th>Exam Title</th>
+              <th>Started At</th>
+              <th>Status</th>
+              <th>Score (/10)</th>
+              <th>Grade</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="examHistoryTableBody">
+            <tr>
+              <td colspan="7">Loading exam history...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SUBVIEW 3: PERSONAL PROFILE -->
+      <div class="student-subview" id="profileSubview">
+        <div class="subview-header">
+          <h2>Personal Profile</h2>
+          <button
+            type="button"
+            onclick="switchStudentTab('home')"
+            style="
+              border: none;
+              background: #e5e7eb;
+              padding: 8px 14px;
+              border-radius: 8px;
+              cursor: pointer;
+              font-weight: 600;
+            "
+          >
+            ← Back to Home
+          </button>
+        </div>
+        <div class="profile-grid" id="studentProfileGrid">
+          <div class="profile-field">
+            <div class="lbl">Full Name</div>
+            <div class="val">{{ session.get('name', 'Student') }}</div>
+          </div>
+          <div class="profile-field">
+            <div class="lbl">Username</div>
+            <div class="val">{{ session.get('username', 'student') }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR MENU -->
       <div class="frame-4">
-        <a
-          href="{{ url_for('student_dashboard') }}"
-          class="frame-5"
-          style="text-decoration: none"
-        >
+        <div class="frame-5" onclick="switchStudentTab('home')">
           <img
             class="img-2"
             src="{{ url_for('static', filename='img/Home.png') }}"
             alt=""
           />
           <div class="text-wrapper-21">Home</div>
-        </a>
+        </div>
         <a
+          id="sidebarExamPaperLink"
           href="{{ url_for('student_exam_page', exam_id=1) }}"
           class="frame-6"
           style="text-decoration: none"
@@ -187,7 +367,7 @@
           />
           <div class="text-wrapper-21">Exam paper</div>
         </a>
-        <div class="frame-7">
+        <div class="frame-7" onclick="switchStudentTab('practice')">
           <img
             class="img-2"
             src="{{ url_for('static', filename='img/Light On.png') }}"
@@ -195,7 +375,7 @@
           />
           <div class="text-wrapper-21">practice</div>
         </div>
-        <div class="frame-6">
+        <div class="frame-6" onclick="switchStudentTab('history')">
           <img
             class="img-2"
             src="{{ url_for('static', filename='img/Clock.png') }}"
@@ -215,7 +395,7 @@
           />
           <div class="text-wrapper-21">result</div>
         </a>
-        <div class="frame-9">
+        <div class="frame-9" onclick="switchStudentTab('profile')">
           <div class="frame-7">
             <img
               class="img-2"
@@ -229,6 +409,43 @@
     </div>
 
     <script>
+      let publishedExamsCache = [];
+
+      function switchStudentTab(tab) {
+        document.getElementById("homeDashboardGroup").style.display =
+          tab === "home" ? "block" : "none";
+        document.getElementById("practiceSubview").style.display =
+          tab === "practice" ? "block" : "none";
+        document.getElementById("historySubview").style.display =
+          tab === "history" ? "block" : "none";
+        document.getElementById("profileSubview").style.display =
+          tab === "profile" ? "block" : "none";
+
+        if (tab === "practice") renderPracticeList();
+        if (tab === "history" || tab === "profile") loadProfileAndHistory();
+      }
+
+      function renderPracticeList() {
+        const container = document.getElementById("practiceExamsContainer");
+        if (!publishedExamsCache.length) {
+          container.innerHTML = `<p style="color:#6b7280;">No published exams available for practice right now.</p>`;
+          return;
+        }
+        container.innerHTML = publishedExamsCache
+          .map(
+            (ex) => `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border:1px solid #e5e7eb; border-radius:12px; background:#f8fafc;">
+                    <div>
+                        <div style="font-weight:700; color:#111827; font-size:15px;">${ex.title}</div>
+                        <div style="font-size:13px; color:#64748b;">Duration: ${ex.duration} mins · Total Marks: ${ex.total_marks}</div>
+                    </div>
+                    <a href="/student/exam/${ex.exam_id}" class="live-join-btn">Start Practice</a>
+                </div>
+            `,
+          )
+          .join("");
+      }
+
       async function loadStudentExams() {
         const container = document.getElementById("availableExamsList");
         try {
@@ -236,9 +453,19 @@
           const json = await res.json();
           const exams =
             json.success && Array.isArray(json.exams) ? json.exams : [];
+          publishedExamsCache = exams;
           document.getElementById("statAvailableCount").textContent = String(
             exams.length,
           );
+
+          if (exams.length > 0) {
+            const sideExamLink = document.getElementById(
+              "sidebarExamPaperLink",
+            );
+            if (sideExamLink) {
+              sideExamLink.href = `/student/exam/${exams[0].exam_id}`;
+            }
+          }
 
           if (exams.length === 0) {
             container.innerHTML = `
@@ -269,15 +496,85 @@
                 `,
             )
             .join("");
+          renderPracticeList();
         } catch (e) {
-          container.innerHTML = `
-                    <div class="live-exam-row">
-                        <div style="color:#dc2626; font-size:14px;">Could not load exam list.</div>
-                    </div>
-                `;
+          container.innerHTML = `<div class="live-exam-row"><div style="color:#dc2626; font-size:14px;">Could not load exam list.</div></div>`;
         }
       }
-      document.addEventListener("DOMContentLoaded", loadStudentExams);
+
+      async function loadProfileAndHistory() {
+        try {
+          const res = await fetch("/api/student/profile-history");
+          const json = await res.json();
+          if (!json.success) return;
+
+          const p = json.profile || {};
+          document.getElementById("studentProfileGrid").innerHTML = `
+                    <div class="profile-field"><div class="lbl">Full Name</div><div class="val">${p.name || "-"}</div></div>
+                    <div class="profile-field"><div class="lbl">Student Code</div><div class="val">${p.student_code || "STU-" + (p.user_id || "")}</div></div>
+                    <div class="profile-field"><div class="lbl">Username</div><div class="val">${p.username || "-"}</div></div>
+                    <div class="profile-field"><div class="lbl">Email</div><div class="val">${p.email || "-"}</div></div>
+                    <div class="profile-field"><div class="lbl">Phone</div><div class="val">${p.phone || "Not updated"}</div></div>
+                    <div class="profile-field"><div class="lbl">Account Status</div><div class="val" style="color:#16a34a;">${p.status || "ACTIVE"}</div></div>
+                `;
+
+          const history = Array.isArray(json.history) ? json.history : [];
+          const completed = history.filter(
+            (h) => h.attempt_status === "SUBMITTED",
+          );
+          const inProg = history.filter(
+            (h) => h.attempt_status === "IN_PROGRESS",
+          );
+          document.getElementById("statCompletedCount").textContent = String(
+            completed.length,
+          );
+          document.getElementById("statInProgressCount").textContent = String(
+            inProg.length,
+          );
+
+          const scored = history.filter((h) => typeof h.score === "number");
+          if (scored.length > 0) {
+            const avg =
+              scored.reduce((acc, cur) => acc + cur.score, 0) / scored.length;
+            document.getElementById("statAvgScore").textContent =
+              avg.toFixed(1);
+          }
+
+          const tbody = document.getElementById("examHistoryTableBody");
+          if (history.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="color:#6b7280;">You have not taken any exams yet.</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = history
+            .map(
+              (h) => `
+                    <tr>
+                        <td>#${h.attempt_id}</td>
+                        <td><strong>${h.exam_title}</strong></td>
+                        <td>${h.start_time || "-"}</td>
+                        <td>${h.attempt_status}</td>
+                        <td><strong>${h.score !== null && h.score !== undefined ? h.score : "-"}</strong></td>
+                        <td>${h.grade || "-"}</td>
+                        <td>
+                            <a href="/student/result/${h.attempt_id}" style="color:#2563eb; font-weight:600; text-decoration:none;">View Result →</a>
+                        </td>
+                    </tr>
+                `,
+            )
+            .join("");
+        } catch (e) {}
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadStudentExams();
+        loadProfileAndHistory();
+        const initialTab =
+          document.getElementById("studentRoot").dataset.initialTab || "home";
+        if (initialTab !== "home") {
+          switchStudentTab(initialTab);
+        }
+      });
     </script>
   </body>
 </html>

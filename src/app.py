@@ -4,6 +4,7 @@ from flask import Flask, flash, jsonify, redirect, render_template, request, ses
 from src.business_layer.auth_service import AdminService, AuthService
 from src.business_layer.grading_service import GradingService
 from src.data_layer import course_exam_dao
+from src.data_layer.db_connection import DatabaseConnection
 from src.presentation_layer.student_routes import configure_exam_routes
 from src.presentation_layer.teacher_routes import teacher_bp
 
@@ -159,7 +160,8 @@ def teacher_dashboard():
 @app.route("/student/dashboard")
 @role_required("STUDENT")
 def student_dashboard():
-    return render_template("student_dashboard.html")
+    active_tab = request.args.get("tab", "home")
+    return render_template("student_dashboard.html", active_tab=active_tab)
 
 
 @app.route("/student/exam/<int:exam_id>")
@@ -173,6 +175,59 @@ def student_exam_page(exam_id: int):
 def student_result_page(attempt_id: int):
     result_data = grading_service.get_or_grade_result(attempt_id)
     return render_template("result.html", attempt_id=attempt_id, result=result_data)
+
+
+# ==================== STUDENT PROFILE & HISTORY API ====================
+@app.route("/api/student/profile-history")
+def api_student_profile_history():
+    user_id = session.get("user_id")
+    if not user_id or session.get("role") != "STUDENT":
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    conn = DatabaseConnection.get_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute(
+            """
+            SELECT u.user_id, u.username, u.email, u.name, u.phone, u.address, u.status,
+                   s.student_code
+            FROM users u
+            LEFT JOIN students s ON s.student_id = u.user_id
+            WHERE u.user_id = %s
+            """,
+            (user_id,),
+        )
+        profile = cursor.fetchone() or {}
+
+        cursor.execute(
+            """
+            SELECT ea.attempt_id, ea.exam_id, ea.start_time, ea.submit_time, ea.status AS attempt_status,
+                   e.title AS exam_title, e.duration,
+                   r.score, r.grade, r.status AS result_status
+            FROM exam_attempts ea
+            JOIN exams e ON e.exam_id = ea.exam_id
+            LEFT JOIN results r ON r.attempt_id = ea.attempt_id
+            WHERE ea.student_id = %s
+            ORDER BY ea.attempt_id DESC
+            """,
+            (user_id,),
+        )
+        history_rows = cursor.fetchall() or []
+        history = []
+        for row in history_rows:
+            item = dict(row)
+            if item.get("start_time"):
+                item["start_time"] = item["start_time"].strftime("%d/%m/%Y %H:%M")
+            if item.get("submit_time"):
+                item["submit_time"] = item["submit_time"].strftime("%d/%m/%Y %H:%M")
+            if item.get("score") is not None:
+                item["score"] = float(item["score"])
+            history.append(item)
+
+        return jsonify({"success": True, "profile": dict(profile), "history": history}), 200
+    finally:
+        cursor.close()
+        conn.close()
 
 
 # ==================== GRADING API (KHOA) ====================

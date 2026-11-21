@@ -29,6 +29,10 @@
         border: none;
         background: transparent;
       }
+      .frame {
+        cursor: pointer;
+        user-select: none;
+      }
       .login-alert {
         position: fixed;
         top: 20px;
@@ -62,11 +66,11 @@
     <div class="login-alert {{ category }}">{{ message }}</div>
     {% endfor %} {% endwith %}
 
-    <form method="POST" action="{{ url_for('login') }}">
+    <form method="POST" action="{{ url_for('login') }}" id="loginForm">
       <div class="login">
         <img
           class="homework"
-          src="{{ url_for('static', filename='img/homework 2.jpg') }}"
+          src="{{ url_for('static', filename='img/homework 2.png') }}"
           alt=""
         />
 
@@ -143,14 +147,29 @@
           src="{{ url_for('static', filename='img/Gemini_Generated_Image_yb98nlyb98nlyb98-removebg-preview 3.png') }}"
           alt=""
         />
-        <div class="frame">
+
+        <div
+          class="frame"
+          id="rememberToggle"
+          role="checkbox"
+          aria-checked="false"
+          tabindex="0"
+        >
+          <input
+            type="checkbox"
+            name="remember"
+            id="rememberCheckbox"
+            style="display: none"
+          />
           <img
             class="tick-box"
-            src="{{ url_for('static', filename='img/Tick Box.png') }}"
-            alt=""
+            id="rememberIcon"
+            src="{{ url_for('static', filename='img/Unchecked Checkbox.png') }}"
+            alt="Remember login"
           />
           <div class="text-wrapper-8">remember login</div>
         </div>
+
         <img
           class="img"
           src="{{ url_for('static', filename='img/Gemini_Generated_Image_yb98nlyb98nlyb98-removebg-preview 3.png') }}"
@@ -166,6 +185,13 @@
       const pInput = document.getElementById("passwordInput");
       const pLabel = document.getElementById("passLabel");
 
+      const rememberToggle = document.getElementById("rememberToggle");
+      const rememberCheckbox = document.getElementById("rememberCheckbox");
+      const rememberIcon = document.getElementById("rememberIcon");
+      const checkedSrc = "{{ url_for('static', filename='img/Tick Box.png') }}";
+      const uncheckedSrc =
+        "{{ url_for('static', filename='img/Unchecked Checkbox.png') }}";
+
       function syncLabels() {
         if (uInput && uLabel) {
           uLabel.style.display = uInput.value ? "none" : "block";
@@ -174,6 +200,40 @@
           pLabel.style.display = pInput.value ? "none" : "block";
         }
       }
+
+      function setRememberState(checked) {
+        rememberCheckbox.checked = checked;
+        rememberToggle.setAttribute("aria-checked", checked ? "true" : "false");
+        rememberIcon.src = checked ? checkedSrc : uncheckedSrc;
+      }
+
+      if (rememberToggle) {
+        rememberToggle.addEventListener("click", () => {
+          setRememberState(!rememberCheckbox.checked);
+        });
+        rememberToggle.addEventListener("keydown", (e) => {
+          if (e.key === " " || e.key === "Enter") {
+            e.preventDefault();
+            setRememberState(!rememberCheckbox.checked);
+          }
+        });
+      }
+
+      // Restore remembered username if saved earlier
+      const savedUser = localStorage.getItem("quiz_remembered_user");
+      if (savedUser && uInput) {
+        uInput.value = savedUser;
+        setRememberState(true);
+        syncLabels();
+      }
+
+      document.getElementById("loginForm").addEventListener("submit", () => {
+        if (rememberCheckbox.checked && uInput.value.trim()) {
+          localStorage.setItem("quiz_remembered_user", uInput.value.trim());
+        } else {
+          localStorage.removeItem("quiz_remembered_user");
+        }
+      });
 
       if (uInput) uInput.addEventListener("input", syncLabels);
       if (pInput) pInput.addEventListener("input", syncLabels);
