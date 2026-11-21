@@ -13,8 +13,15 @@
       href="{{ url_for('static', filename='teacher-style.css') }}"
     />
     <style>
-      .nt-hnh-ng {
+      .nt-hnh-ng,
+      .frame-3,
+      .frame-4 {
         cursor: pointer;
+      }
+      .nav-active-tab {
+        background: #2563eb;
+        border-radius: 12px;
+        padding: 10px 14px;
       }
       .teacher-modal-backdrop {
         position: fixed;
@@ -33,8 +40,10 @@
         background: #ffffff;
         border-radius: 14px;
         padding: 24px;
-        width: 460px;
-        max-width: 92vw;
+        width: 500px;
+        max-width: 94vw;
+        max-height: 90vh;
+        overflow-y: auto;
         box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
       }
       .teacher-modal h3 {
@@ -49,7 +58,9 @@
         margin: 10px 0 4px;
         color: #374151;
       }
-      .teacher-modal input,
+      .teacher-modal input[type="text"],
+      .teacher-modal input[type="number"],
+      .teacher-modal input[type="datetime-local"],
       .teacher-modal select,
       .teacher-modal textarea {
         width: 100%;
@@ -58,6 +69,17 @@
         border-radius: 8px;
         font-size: 14px;
         box-sizing: border-box;
+      }
+      .option-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 6px;
+      }
+      .option-row input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
       }
       .modal-actions {
         display: flex;
@@ -84,7 +106,7 @@
       }
       .action-pill {
         border: none;
-        padding: 4px 8px;
+        padding: 5px 10px;
         border-radius: 6px;
         font-size: 12px;
         cursor: pointer;
@@ -102,6 +124,51 @@
       .pill-del {
         background: #fee2e2;
         color: #991b1b;
+      }
+
+      /* Question Bank View */
+      .qb-grid {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 20px;
+        width: 100%;
+        font-family: sans-serif;
+      }
+      .qb-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      }
+      .qb-set-item {
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .qb-set-item:hover,
+      .qb-set-item.active {
+        border-color: #2563eb;
+        background: #eff6ff;
+      }
+      .qb-question-item {
+        padding: 12px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        background: #f8fafc;
+      }
+      .badge-diff {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        background: #e0e7ff;
+        color: #3730a3;
       }
     </style>
   </head>
@@ -146,7 +213,11 @@
           />
           <div class="text-wrapper-6">Home</div>
         </a>
-        <div class="frame-3">
+        <div
+          class="frame-3"
+          id="navExamTab"
+          onclick="switchTeacherTab('exams')"
+        >
           <img
             class="img"
             src="{{ url_for('static', filename='img/Pass Fail.png') }}"
@@ -154,7 +225,11 @@
           />
           <div class="text-wrapper-7">Exam Management</div>
         </div>
-        <div class="frame-4">
+        <div
+          class="frame-4"
+          id="navQbTab"
+          onclick="switchTeacherTab('question_bank')"
+        >
           <img
             class="img"
             src="{{ url_for('static', filename='img/Light On.png') }}"
@@ -194,7 +269,9 @@
         src="{{ url_for('static', filename='img/Profile2.png') }}"
         alt=""
       />
-      <div class="ni-dung-trang">
+
+      <!-- TAB 1: EXAM MANAGEMENT -->
+      <div class="ni-dung-trang" id="examManagementSection">
         <div class="tiu-trang">
           <div class="ti-u">Exam Management</div>
           <div class="nt-hnh-ng" onclick="openCreateExamModal()">
@@ -259,20 +336,7 @@
             <div class="n-i-dung-8">Marks</div>
             <div class="n-i-dung-9">Operation</div>
           </div>
-          <div id="examRowsDynamic">
-            <div class="thi">
-              <div class="n-i-dung-10">1</div>
-              <div class="n-i-dung-11">Sample Draft Exam</div>
-              <div class="n-i-dung-12">Software Engineering (Draft)</div>
-              <div class="n-i-dung-13">30 minute</div>
-              <div class="n-i-dung-14">10</div>
-              <img
-                class="thao-tc-thi"
-                src="{{ url_for('static', filename='img/Thao tác đề thi.png') }}"
-                alt=""
-              />
-            </div>
-          </div>
+          <div id="examRowsDynamic"></div>
           <div class="phn-trang">
             <div class="trang"><div class="n-i-dung-15">‹</div></div>
             <div class="n-i-dung-wrapper"><div class="n-i-dung-16">1</div></div>
@@ -280,9 +344,86 @@
           </div>
         </div>
       </div>
+
+      <!-- TAB 2: QUESTION BANK -->
+      <div class="ni-dung-trang" id="questionBankSection" style="display: none">
+        <div class="tiu-trang">
+          <div class="ti-u">Question Bank Management</div>
+          <div style="display: flex; gap: 10px">
+            <div class="nt-hnh-ng" onclick="openCreateBankModal()">
+              <div class="vector-wrapper">
+                <img
+                  class="vector"
+                  src="{{ url_for('static', filename='img/plus.png') }}"
+                  alt=""
+                />
+              </div>
+              <div class="n-i-dung">New Question Set</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="qb-grid">
+          <!-- Left: Question Sets -->
+          <div class="qb-card">
+            <div
+              style="
+                font-weight: 700;
+                font-size: 15px;
+                color: #1e3a8a;
+                margin-bottom: 12px;
+              "
+            >
+              Question Sets
+            </div>
+            <div id="questionSetList">Loading question sets...</div>
+          </div>
+
+          <!-- Right: Questions inside selected set -->
+          <div class="qb-card">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 14px;
+              "
+            >
+              <div>
+                <div
+                  id="selectedSetTitle"
+                  style="font-weight: 700; font-size: 16px; color: #111827"
+                >
+                  Select a Question Set
+                </div>
+                <div
+                  id="selectedSetMeta"
+                  style="font-size: 12px; color: #6b7280"
+                >
+                  Click a set on the left to view or add questions
+                </div>
+              </div>
+              <button
+                type="button"
+                id="btnOpenAddBankQuestion"
+                class="btn-save"
+                style="display: none"
+                onclick="openQuestionModal('bank')"
+              >
+                + Add Question
+              </button>
+            </div>
+            <div id="bankQuestionsContainer">
+              <p style="color: #6b7280; font-size: 14px">
+                No question set selected yet.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Modal Create Exam -->
+    <!-- Modal 1: Create Exam -->
     <div class="teacher-modal-backdrop" id="createExamModal">
       <div class="teacher-modal">
         <h3>Create New Exam</h3>
@@ -320,7 +461,7 @@
             <button
               type="button"
               class="btn-cancel"
-              onclick="closeCreateExamModal()"
+              onclick="closeModal('createExamModal')"
             >
               Cancel
             </button>
@@ -330,9 +471,133 @@
       </div>
     </div>
 
+    <!-- Modal 2: Create Question Set -->
+    <div class="teacher-modal-backdrop" id="createBankModal">
+      <div class="teacher-modal">
+        <h3>Create Question Set</h3>
+        <form id="createBankForm" onsubmit="submitCreateBank(event)">
+          <label>Question Set Name</label>
+          <input
+            type="text"
+            name="question_set_name"
+            required
+            placeholder="e.g., Chapter 1 - Software Process"
+          />
+
+          <label>Subject ID</label>
+          <input type="number" name="subject_id" min="1" value="1" required />
+
+          <label>Difficulty Level</label>
+          <select name="difficulty_level">
+            <option value="EASY">EASY</option>
+            <option value="MEDIUM" selected>MEDIUM</option>
+            <option value="HARD">HARD</option>
+          </select>
+
+          <label>Description / Notes</label>
+          <textarea
+            name="explanation"
+            rows="2"
+            placeholder="Optional notes..."
+          ></textarea>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn-cancel"
+              onclick="closeModal('createBankModal')"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn-save">Save Set</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 3: Add Multiple-Choice Question (to Bank or Exam) -->
+    <div class="teacher-modal-backdrop" id="addQuestionModal">
+      <div class="teacher-modal">
+        <h3 id="questionModalTitle">Add Multiple-Choice Question</h3>
+        <form id="addQuestionForm" onsubmit="submitAddQuestion(event)">
+          <label>Question Content</label>
+          <textarea
+            name="content"
+            rows="2"
+            required
+            placeholder="Enter question prompt..."
+          ></textarea>
+
+          <label>Marks</label>
+          <input
+            type="number"
+            name="marks"
+            step="0.5"
+            min="0.5"
+            value="1"
+            required
+          />
+
+          <label
+            >Answer Options (Select the radio button for the correct
+            answer)</label
+          >
+          <div class="option-row">
+            <input type="radio" name="correct_idx" value="0" checked />
+            <input type="text" name="opt_0" required placeholder="Option A" />
+          </div>
+          <div class="option-row">
+            <input type="radio" name="correct_idx" value="1" />
+            <input type="text" name="opt_1" required placeholder="Option B" />
+          </div>
+          <div class="option-row">
+            <input type="radio" name="correct_idx" value="2" />
+            <input type="text" name="opt_2" required placeholder="Option C" />
+          </div>
+          <div class="option-row">
+            <input type="radio" name="correct_idx" value="3" />
+            <input type="text" name="opt_3" required placeholder="Option D" />
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn-cancel"
+              onclick="closeModal('addQuestionModal')"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn-save">Add Question</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script>
       let cachedExams = [];
+      let selectedBankId = null;
+      let questionTargetMode = "bank"; // "bank" or "exam"
+      let targetExamId = null;
 
+      function closeModal(id) {
+        document.getElementById(id).classList.remove("open");
+      }
+
+      function switchTeacherTab(tab) {
+        const examSec = document.getElementById("examManagementSection");
+        const qbSec = document.getElementById("questionBankSection");
+        if (tab === "question_bank") {
+          examSec.style.display = "none";
+          qbSec.style.display = "flex";
+          loadQuestionBanks();
+        } else {
+          qbSec.style.display = "none";
+          examSec.style.display = "flex";
+          loadTeacherExams();
+        }
+      }
+
+      // ==================== EXAM MANAGEMENT ====================
       async function loadTeacherSyllabuses() {
         try {
           const res = await fetch("/teacher/syllabuses");
@@ -350,9 +615,7 @@
               )
               .join("");
           }
-        } catch (e) {
-          /* keep default option */
-        }
+        } catch (e) {}
       }
 
       async function loadTeacherExams() {
@@ -367,9 +630,7 @@
             cachedExams = json.data;
             renderExams(cachedExams);
           }
-        } catch (e) {
-          /* keep fallback row */
-        }
+        } catch (e) {}
       }
 
       function filterTeacherExams() {
@@ -396,7 +657,8 @@
                     <div class="n-i-dung-12">${ex.syllabus_title || "Syllabus #" + ex.syllabus_id} (${ex.status})</div>
                     <div class="n-i-dung-13">${ex.duration} minute</div>
                     <div class="n-i-dung-14">${ex.total_marks ?? 0}</div>
-                    <div style="display:flex; align-items:center;">
+                    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
+                        ${ex.status === "Draft" ? `<button class="action-pill pill-addq" onclick="openQuestionModal('exam', ${ex.exam_id})">+ Question</button>` : ""}
                         ${ex.status === "Draft" ? `<button class="action-pill pill-publish" onclick="publishExam(${ex.exam_id})">Publish</button>` : ""}
                         ${ex.status === "Draft" ? `<button class="action-pill pill-del" onclick="deleteExam(${ex.exam_id})">Delete</button>` : ""}
                     </div>
@@ -411,14 +673,9 @@
         document.getElementById("createExamModal").classList.add("open");
       }
 
-      function closeCreateExamModal() {
-        document.getElementById("createExamModal").classList.remove("open");
-      }
-
       async function submitCreateExam(e) {
         e.preventDefault();
-        const fd = new FormData(e.target);
-        const payload = Object.fromEntries(fd.entries());
+        const payload = Object.fromEntries(new FormData(e.target).entries());
         const res = await fetch("/teacher/exams", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -426,7 +683,7 @@
         });
         const json = await res.json();
         if (json.success) {
-          closeCreateExamModal();
+          closeModal("createExamModal");
           e.target.reset();
           loadTeacherExams();
         } else {
@@ -451,6 +708,171 @@
         const json = await res.json();
         if (json.success) loadTeacherExams();
         else alert(json.message || "Cannot delete exam");
+      }
+
+      // ==================== QUESTION BANK ====================
+      async function loadQuestionBanks() {
+        const listEl = document.getElementById("questionSetList");
+        try {
+          const res = await fetch("/teacher/question-banks");
+          const json = await res.json();
+          if (
+            !json.success ||
+            !Array.isArray(json.data) ||
+            json.data.length === 0
+          ) {
+            listEl.innerHTML = `<p style="color:#6b7280; font-size:13px;">No question sets yet. Click "+ New Question Set" to create one.</p>`;
+            return;
+          }
+          listEl.innerHTML = json.data
+            .map(
+              (b) => `
+                    <div class="qb-set-item ${selectedBankId === b.question_set_id ? "active" : ""}"
+                         onclick="selectQuestionBank(${b.question_set_id}, '${(b.question_set_name || "").replace(/'/g, "\\'")}', '${b.difficulty_level || "MEDIUM"}')">
+                        <div style="font-weight:600; font-size:14px; color:#111827;">${b.question_set_name}</div>
+                        <div style="margin-top:4px; display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:12px; color:#6b7280;">Subject #${b.subject_id}</span>
+                            <span class="badge-diff">${b.difficulty_level || "MEDIUM"}</span>
+                        </div>
+                    </div>
+                `,
+            )
+            .join("");
+          if (!selectedBankId && json.data.length > 0) {
+            const first = json.data[0];
+            selectQuestionBank(
+              first.question_set_id,
+              first.question_set_name,
+              first.difficulty_level || "MEDIUM",
+            );
+          }
+        } catch (e) {
+          listEl.innerHTML = `<p style="color:#dc2626; font-size:13px;">Failed to load question sets.</p>`;
+        }
+      }
+
+      async function selectQuestionBank(bankId, name, difficulty) {
+        selectedBankId = bankId;
+        document.getElementById("selectedSetTitle").textContent = name;
+        document.getElementById("selectedSetMeta").textContent =
+          `Set #${bankId} · Difficulty: ${difficulty}`;
+        document.getElementById("btnOpenAddBankQuestion").style.display =
+          "inline-block";
+
+        const container = document.getElementById("bankQuestionsContainer");
+        container.innerHTML = `<p style="color:#6b7280; font-size:13px;">Loading questions...</p>`;
+        try {
+          const res = await fetch(
+            `/teacher/question-banks/${bankId}/questions`,
+          );
+          const json = await res.json();
+          if (
+            !json.success ||
+            !Array.isArray(json.data) ||
+            json.data.length === 0
+          ) {
+            container.innerHTML = `<p style="color:#6b7280; font-size:14px;">This set has no questions yet. Click "+ Add Question" to add one.</p>`;
+            return;
+          }
+          container.innerHTML = json.data
+            .map(
+              (q, idx) => `
+                    <div class="qb-question-item">
+                        <div style="font-weight:600; font-size:14px; color:#111827;">Q${idx + 1}. ${q.content} <span style="color:#2563eb; font-size:12px;">(${q.marks} pts)</span></div>
+                        <div style="margin-top:6px; font-size:13px; color:#374151;">
+                            ${(q.answers || [])
+                              .map(
+                                (a, i) => `
+                                <div style="${a.is_correct ? "color:#15803d; font-weight:600;" : ""}">
+                                    ${String.fromCharCode(65 + i)}. ${a.content} ${a.is_correct ? "✓" : ""}
+                                </div>
+                            `,
+                              )
+                              .join("")}
+                        </div>
+                    </div>
+                `,
+            )
+            .join("");
+        } catch (e) {
+          container.innerHTML = `<p style="color:#dc2626; font-size:13px;">Error loading questions.</p>`;
+        }
+      }
+
+      function openCreateBankModal() {
+        document.getElementById("createBankModal").classList.add("open");
+      }
+
+      async function submitCreateBank(e) {
+        e.preventDefault();
+        const payload = Object.fromEntries(new FormData(e.target).entries());
+        payload.question_type = "MULTIPLE_CHOICE";
+        const res = await fetch("/teacher/question-banks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const json = await res.json();
+        if (json.success) {
+          closeModal("createBankModal");
+          e.target.reset();
+          selectedBankId = json.data.question_set_id;
+          loadQuestionBanks();
+        } else {
+          alert(json.message || "Failed to create question set");
+        }
+      }
+
+      function openQuestionModal(mode, examId = null) {
+        questionTargetMode = mode;
+        targetExamId = examId;
+        document.getElementById("questionModalTitle").textContent =
+          mode === "exam"
+            ? `Add Question to Exam #${examId}`
+            : `Add Question to Set #${selectedBankId}`;
+        document.getElementById("addQuestionModal").classList.add("open");
+      }
+
+      async function submitAddQuestion(e) {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const correctIdx = parseInt(fd.get("correct_idx"), 10);
+        const payload = {
+          content: fd.get("content"),
+          question_type: "MULTIPLE_CHOICE",
+          marks: parseFloat(fd.get("marks")),
+          answers: [0, 1, 2, 3].map((i) => ({
+            content: fd.get(`opt_${i}`),
+            is_correct: i === correctIdx,
+          })),
+        };
+
+        const endpoint =
+          questionTargetMode === "exam"
+            ? `/teacher/exams/${targetExamId}/questions`
+            : `/teacher/question-banks/${selectedBankId}/questions`;
+
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const json = await res.json();
+        if (json.success) {
+          closeModal("addQuestionModal");
+          e.target.reset();
+          if (questionTargetMode === "exam") {
+            loadTeacherExams();
+          } else {
+            selectQuestionBank(
+              selectedBankId,
+              document.getElementById("selectedSetTitle").textContent,
+              "MEDIUM",
+            );
+          }
+        } else {
+          alert(json.message || "Failed to add question");
+        }
       }
 
       document.addEventListener("DOMContentLoaded", loadTeacherExams);
