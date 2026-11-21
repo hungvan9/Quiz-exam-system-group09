@@ -3,6 +3,7 @@
 Owner: Nguyễn Đăng Khoa (Backend Grading & QA Lead).
 """
 from datetime import datetime, timedelta
+from typing import Any, Dict, cast
 import pytest
 from src.app import app
 from src.business_layer.grading_service import GradingService
@@ -85,7 +86,6 @@ def test_grade_attempt_all_correct():
 
 
 def test_grade_attempt_partial_weighted_and_blank():
-    # Q1 (1pt) correct, Q2 (1pt) wrong, Q3 (2pt) blank -> 1/4 = 2.5/10 (F)
     dao = FakeGradingDAO(_sample_bundle({1: 11, 2: 21}))
     service = GradingService(dao=dao)
 
@@ -173,11 +173,9 @@ def test_rbac_prevents_cross_role_dashboard_access(client):
 
 
 def test_grade_api_unauthorized_and_not_found(client):
-    # Unauthenticated -> 401
     resp_unauth = client.post("/api/attempts/1/grade")
     assert resp_unauth.status_code == 401
 
-    # Authenticated with non-existent attempt -> 404
     with client.session_transaction() as sess:
         sess["user_id"] = 3
         sess["role"] = "STUDENT"
@@ -196,11 +194,14 @@ def test_mysql_end_to_end_grading_persistence():
     attempt_id = None
     try:
         cursor.execute("SELECT student_id FROM students LIMIT 1")
-        student = cursor.fetchone()
+        student_row = cursor.fetchone()
         cursor.execute("SELECT exam_id FROM exams LIMIT 1")
-        exam = cursor.fetchone()
-        if not student or not exam:
+        exam_row = cursor.fetchone()
+        if not student_row or not exam_row:
             pytest.skip("Seed student or exam missing")
+
+        student = cast(Dict[str, Any], student_row)
+        exam = cast(Dict[str, Any], exam_row)
 
         cursor.execute(
             """
@@ -210,6 +211,7 @@ def test_mysql_end_to_end_grading_persistence():
             (student["student_id"], exam["exam_id"]),
         )
         attempt_id = cursor.lastrowid
+        assert attempt_id is not None
         conn.commit()
 
         service = GradingService()

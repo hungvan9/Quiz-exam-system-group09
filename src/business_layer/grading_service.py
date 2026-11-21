@@ -15,7 +15,7 @@ OPTION_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 class GradingService:
     """Service responsible for scoring submitted attempts and building result reports."""
 
-    def __init__(self, dao=result_dao):
+    def __init__(self, dao: Any = result_dao):
         self.dao = dao
 
     @staticmethod
@@ -42,13 +42,11 @@ class GradingService:
         answers = bundle["answers"]
         student_answers = bundle["student_answers"]
 
-        # Group answer options by question_id
         options_by_q: Dict[int, List[Dict[str, Any]]] = {}
         for ans in answers:
             qid = int(ans["question_id"])
             options_by_q.setdefault(qid, []).append(ans)
 
-        # Map student's chosen answer by question_id
         student_ans_by_q: Dict[int, Dict[str, Any]] = {
             int(sa["question_id"]): sa for sa in student_answers
         }
@@ -150,7 +148,6 @@ class GradingService:
             status=result_status,
         )
 
-        # Calculate elapsed minutes
         duration = int(attempt.get("duration") or 0)
         start_time = attempt.get("start_time")
         submit_time = attempt.get("submit_time")

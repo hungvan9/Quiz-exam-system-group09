@@ -5,7 +5,7 @@ Owner: Nguyễn Đăng Khoa (Backend Grading & QA Lead).
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 from src.data_layer.db_connection import DatabaseConnection
 
 
@@ -27,6 +27,18 @@ def _cursor(dictionary: bool = True):
             connection.close()
 
 
+def _one(cursor) -> Optional[Dict[str, Any]]:
+    row = cursor.fetchone()
+    if row is None:
+        return None
+    return dict(cast(Dict[str, Any], row))
+
+
+def _many(cursor) -> List[Dict[str, Any]]:
+    rows = cursor.fetchall()
+    return [dict(cast(Dict[str, Any], row)) for row in rows]
+
+
 def get_grading_bundle(attempt_id: int) -> Optional[Dict[str, Any]]:
     """Fetch attempt, exam metadata, questions, options, and student answers."""
     with _cursor() as (_, cursor):
@@ -41,7 +53,7 @@ def get_grading_bundle(attempt_id: int) -> Optional[Dict[str, Any]]:
             """,
             (attempt_id,),
         )
-        attempt = cursor.fetchone()
+        attempt = _one(cursor)
         if not attempt:
             return None
 
@@ -56,7 +68,7 @@ def get_grading_bundle(attempt_id: int) -> Optional[Dict[str, Any]]:
             """,
             (exam_id,),
         )
-        questions = [dict(row) for row in cursor.fetchall()]
+        questions = _many(cursor)
 
         question_ids = [q["question_id"] for q in questions]
         answers: List[Dict[str, Any]] = []
@@ -71,7 +83,7 @@ def get_grading_bundle(attempt_id: int) -> Optional[Dict[str, Any]]:
                 """,
                 tuple(question_ids),
             )
-            answers = [dict(row) for row in cursor.fetchall()]
+            answers = _many(cursor)
 
         cursor.execute(
             """
@@ -83,10 +95,10 @@ def get_grading_bundle(attempt_id: int) -> Optional[Dict[str, Any]]:
             """,
             (attempt_id,),
         )
-        student_answers = [dict(row) for row in cursor.fetchall()]
+        student_answers = _many(cursor)
 
         return {
-            "attempt": dict(attempt),
+            "attempt": attempt,
             "questions": questions,
             "answers": answers,
             "student_answers": student_answers,
@@ -132,8 +144,8 @@ def save_result(
             """,
             (attempt_id,),
         )
-        row = cursor.fetchone()
-        return dict(row) if row else {
+        row = _one(cursor)
+        return row if row is not None else {
             "attempt_id": attempt_id,
             "score": score,
             "grade": grade,
@@ -152,5 +164,4 @@ def get_result_by_attempt(attempt_id: int) -> Optional[Dict[str, Any]]:
             """,
             (attempt_id,),
         )
-        row = cursor.fetchone()
-        return dict(row) if row else None
+        return _one(cursor)
