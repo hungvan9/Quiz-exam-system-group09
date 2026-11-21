@@ -1,7 +1,8 @@
 import os
 from functools import wraps
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for
 from src.business_layer.auth_service import AdminService, AuthService
+from src.business_layer.grading_service import GradingService
 from src.data_layer import course_exam_dao
 from src.presentation_layer.student_routes import configure_exam_routes
 from src.presentation_layer.teacher_routes import teacher_bp
@@ -15,6 +16,7 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", "group09_quiz_exam_secret_key")
 
 auth_service = AuthService()
 admin_service = AdminService()
+grading_service = GradingService()
 
 app.register_blueprint(teacher_bp)
 app.register_blueprint(configure_exam_routes(course_exam_dao))
@@ -169,7 +171,20 @@ def student_exam_page(exam_id: int):
 @app.route("/student/result/<int:attempt_id>")
 @role_required("STUDENT")
 def student_result_page(attempt_id: int):
-    return render_template("result.html", attempt_id=attempt_id)
+    result_data = grading_service.get_or_grade_result(attempt_id)
+    return render_template("result.html", attempt_id=attempt_id, result=result_data)
+
+
+# ==================== GRADING API (KHOA) ====================
+@app.route("/api/attempts/<int:attempt_id>/grade", methods=["POST"])
+def api_grade_attempt(attempt_id: int):
+    if session.get("role") not in {"STUDENT", "TEACHER", "ADMIN"}:
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+    try:
+        graded = grading_service.grade_attempt(attempt_id)
+        return jsonify({"success": True, "data": graded}), 200
+    except ValueError as exc:
+        return jsonify({"success": False, "message": str(exc)}), 404
 
 
 if __name__ == "__main__":
