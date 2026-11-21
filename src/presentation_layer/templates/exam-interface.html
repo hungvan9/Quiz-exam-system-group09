@@ -1,68 +1,77 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="exam-interface-globals.css">
-    <link rel="stylesheet" href="exam-interface-style.css">
+    <title>Exam Room - Quiz Examination System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='exam-interface-globals.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='exam-interface-style.css') }}">
+    <style>
+        .phng-n-tr-li, .phng-n-tr-li-2, .np-bi, .nt-hnh-ng, .n-i-dung-wrapper, .nh-du-cu-hi, .s-cu-hi, .s-cu-hi-2, .div-wrapper {
+            cursor: pointer;
+        }
+        .option-selected {
+            border: 2px solid #2563eb !important;
+            background-color: #eff6ff !important;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="exam-interface">
+    <div class="exam-interface" id="examContainer" data-exam-id="{{ exam_id or 1 }}">
         <div class="rectangle"></div>
-        <img class="gemini-generated" src="img/Gemini_Generated_Image_yb98nlyb98nlyb98-removebg-preview 1.png" />
+        <img class="gemini-generated" src="{{ url_for('static', filename='img/Gemini_Generated_Image_yb98nlyb98nlyb98-removebg-preview 1.png') }}" alt="" />
         <div class="text-wrapper">Quiz Examination System</div>
-        <div class="div">join</div>
+        <a href="{{ url_for('student_dashboard') }}" class="div" style="text-decoration: none;">Back</a>
         <div class="thi-gian-v-np-bi">
             <div class="m-ngc">
-                <div class="clock"><img class="vector" src="img/clock-3.png" /></div>
-                <div class="n-i-dung">00:45:32</div>
+                <div class="clock"><img class="vector" src="{{ url_for('static', filename='img/clock-3.png') }}" alt="" /></div>
+                <div class="n-i-dung" id="examTimerDisplay">00:45:32</div>
             </div>
-            <div class="np-bi">
-                <div class="n-i-dung-2">Submit assignment bài</div>
+            <div class="np-bi" id="submitExamBtn" onclick="submitExamAttempt()">
+                <div class="n-i-dung-2">Submit assignment</div>
             </div>
         </div>
         <div class="th-ni-dung">
-            <div class="n-i-dung-3">Câu 5 / 20</div>
+            <div class="n-i-dung-3" id="questionCounter">Câu 5 / 20</div>
             <div class="ni-dung-cu-hi">
-                <p class="p">How many structures does an operating system have?</p>
+                <p class="p" id="questionText">How many structures does an operating system have?</p>
             </div>
-            <div class="cc-phng-n-tr-li">
-                <div class="phng-n-tr-li">
+            <div class="cc-phng-n-tr-li" id="answerOptions">
+                <div class="phng-n-tr-li" onclick="selectOption(this)">
                     <div class="nt-chn-p-n"></div>
                     <div class="n-i-dung-4">A.&nbsp;&nbsp; 4</div>
                 </div>
-                <div class="phng-n-tr-li-2">
+                <div class="phng-n-tr-li-2 option-selected" onclick="selectOption(this)">
                     <div class="chn-wrapper">
                         <div class="chn"></div>
                     </div>
                     <div class="n-i-dung-5">B.&nbsp;&nbsp; 3</div>
                 </div>
-                <div class="phng-n-tr-li">
+                <div class="phng-n-tr-li" onclick="selectOption(this)">
                     <div class="nt-chn-p-n"></div>
                     <div class="n-i-dung-4">C.&nbsp;&nbsp; 1</div>
                 </div>
-                <div class="phng-n-tr-li">
+                <div class="phng-n-tr-li" onclick="selectOption(this)">
                     <div class="nt-chn-p-n"></div>
                     <div class="n-i-dung-4">D.&nbsp;&nbsp; 2</div>
                 </div>
             </div>
             <div class="iu-hng-cu-hi">
-                <div class="nt-hnh-ng">
-                    <div class="vector-wrapper"><img class="img" src="img/arrow-left.png" /></div>
-                    <div class="n-i-dung-6">previous page</div>
+                <div class="nt-hnh-ng" onclick="navigateQuestion(-1)">
+                    <div class="vector-wrapper"><img class="img" src="{{ url_for('static', filename='img/arrow-left.png') }}" alt="" /></div>
+                    <div class="n-i-dung-6">Previous question</div>
                 </div>
-                <div class="n-i-dung-wrapper">
-                    <div class="n-i-dung-7">Next sentence&nbsp;&nbsp;→</div>
+                <div class="n-i-dung-wrapper" onclick="navigateQuestion(1)">
+                    <div class="n-i-dung-7">Next question&nbsp;&nbsp;→</div>
                 </div>
             </div>
-            <div class="nh-du-cu-hi">
+            <div class="nh-du-cu-hi" id="bookmarkBtn" onclick="toggleBookmark()">
                 <div class="nh-du">
-                    <div class="vector-wrapper"><img class="vector-2" src="img/Ô đánh dấu.png" /></div>
+                    <div class="vector-wrapper"><img class="vector-2" src="{{ url_for('static', filename='img/Ô đánh dấu.png') }}" alt="" /></div>
                 </div>
-                <div class="n-i-dung-8">Bookmark the question</div>
+                <div class="n-i-dung-8" id="bookmarkLabel">Bookmark the question</div>
             </div>
         </div>
         <div class="th-ni-dung-2">
@@ -83,94 +92,67 @@
             </div>
             <div class="li-cu-hi">
                 <div class="hng-cu-hi">
-                    <div class="s-cu-hi">
-                        <div class="n-i-dung-4">1</div>
-                    </div>
-                    <div class="s-cu-hi">
-                        <div class="n-i-dung-4">2</div>
-                    </div>
-                    <div class="s-cu-hi">
-                        <div class="n-i-dung-4">3</div>
-                    </div>
-                    <div class="s-cu-hi">
-                        <div class="n-i-dung-4">4</div>
-                    </div>
-                    <div class="div-wrapper">
-                        <div class="n-i-dung-11">5</div>
-                    </div>
+                    <div class="s-cu-hi"><div class="n-i-dung-4">1</div></div>
+                    <div class="s-cu-hi"><div class="n-i-dung-4">2</div></div>
+                    <div class="s-cu-hi"><div class="n-i-dung-4">3</div></div>
+                    <div class="s-cu-hi"><div class="n-i-dung-4">4</div></div>
+                    <div class="div-wrapper"><div class="n-i-dung-11">5</div></div>
                 </div>
                 <div class="hng-cu-hi">
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">6</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">7</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">8</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">9</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">10</div>
-                    </div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">6</div></div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">7</div></div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">8</div></div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">9</div></div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">10</div></div>
                 </div>
                 <div class="hng-cu-hi">
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">14</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">12</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">13</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">18</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">15</div>
-                    </div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">11</div></div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">12</div></div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">13</div></div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">14</div></div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">15</div></div>
                 </div>
                 <div class="hng-cu-hi">
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">19</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">28</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">23</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">24</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">24</div>
-                    </div>
-                </div>
-                <div class="hng-cu-hi">
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">26</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">28</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">28</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">29</div>
-                    </div>
-                    <div class="s-cu-hi-2">
-                        <div class="n-i-dung-4">20</div>
-                    </div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">16</div></div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">17</div></div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">18</div></div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">19</div></div>
+                    <div class="s-cu-hi-2"><div class="n-i-dung-4">20</div></div>
                 </div>
             </div>
             <div class="khong-trng-danh-sch"></div>
         </div>
     </div>
+
+    <script src="{{ url_for('static', filename='exam_timer.js') }}"></script>
+    <script>
+        let currentQuestion = 5;
+        const totalQuestions = 20;
+
+        function selectOption(el) {
+            document.querySelectorAll("#answerOptions > div").forEach(opt => opt.classList.remove("option-selected"));
+            el.classList.add("option-selected");
+        }
+
+        function navigateQuestion(delta) {
+            const next = currentQuestion + delta;
+            if (next >= 1 && next <= totalQuestions) {
+                currentQuestion = next;
+                document.getElementById("questionCounter").textContent = `Câu ${currentQuestion} / ${totalQuestions}`;
+            }
+        }
+
+        function toggleBookmark() {
+            const label = document.getElementById("bookmarkLabel");
+            label.textContent = label.textContent === "Bookmark the question" ? "Bookmarked ★" : "Bookmark the question";
+        }
+
+        function submitExamAttempt() {
+            if (confirm("Are you sure you want to submit this exam?")) {
+                window.location.href = "{{ url_for('student_result_page', attempt_id=1) }}";
+            }
+        }
+    </script>
 </body>
 
 </html>

@@ -1,135 +1,281 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="teacher-globals.css">
-    <link rel="stylesheet" href="teacher-style.css">
+    <title>Teacher Dashboard - Quiz Examination System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='teacher-globals.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='teacher-style.css') }}">
+    <style>
+        .nt-hnh-ng { cursor: pointer; }
+        .teacher-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            font-family: sans-serif;
+        }
+        .teacher-modal-backdrop.open { display: flex; }
+        .teacher-modal {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 24px;
+            width: 460px;
+            max-width: 92vw;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+        }
+        .teacher-modal h3 { margin: 0 0 14px; font-size: 18px; color: #111827; }
+        .teacher-modal label { display: block; font-size: 13px; font-weight: 600; margin: 10px 0 4px; color: #374151; }
+        .teacher-modal input, .teacher-modal select, .teacher-modal textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+        .btn-cancel { background: #e5e7eb; color: #374151; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+        .btn-save { background: #2563eb; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .action-pill {
+            border: none;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 4px;
+        }
+        .pill-publish { background: #dcfce7; color: #166534; }
+        .pill-addq { background: #dbeafe; color: #1d4ed8; }
+        .pill-del { background: #fee2e2; color: #991b1b; }
+    </style>
 </head>
 
 <body>
     <div class="teacher-design">
         <div class="rectangle"></div>
         <div class="div"></div>
-        <img class="gemini-generated" src="img/Gemini_Generated_Image_yb98nlyb98nlyb98-removebg-preview 1.png" />
+        <img class="gemini-generated" src="{{ url_for('static', filename='img/Gemini_Generated_Image_yb98nlyb98nlyb98-removebg-preview 1.png') }}" alt="" />
         <div class="text-wrapper">Quiz Examination System</div>
         <div class="rectangle-2"></div>
-        <img class="search" src="img/search.png" />
-        <div class="text-wrapper-2">Trần Thị A</div>
+        <img class="search" src="{{ url_for('static', filename='img/search.png') }}" alt="" />
+        <div class="text-wrapper-2">{{ session.get('name', 'Teacher') }}</div>
         <div class="text-wrapper-3">Teacher</div>
-        <div class="rectangle-3"></div>
-        <div class="text-wrapper-4">join</div>
-        <div class="text-wrapper-5">join</div>
+        <a href="{{ url_for('logout') }}" class="text-wrapper-4" style="text-decoration: none; color: #ef4444; font-weight: 600;">Logout</a>
+        <div class="text-wrapper-5"></div>
         <div class="frame">
-            <div class="frame-2"><img class="img" src="img/home.png" />
+            <a href="{{ url_for('teacher_dashboard') }}" class="frame-2" style="text-decoration: none;">
+                <img class="img" src="{{ url_for('static', filename='img/home.png') }}" alt="" />
                 <div class="text-wrapper-6">Home</div>
-            </div>
-            <div class="frame-3"><img class="img" src="img/Pass Fail.png" />
+            </a>
+            <div class="frame-3">
+                <img class="img" src="{{ url_for('static', filename='img/Pass Fail.png') }}" alt="" />
                 <div class="text-wrapper-7">Exam Management</div>
             </div>
-            <div class="frame-4"><img class="img" src="img/Light On.png" />
+            <div class="frame-4">
+                <img class="img" src="{{ url_for('static', filename='img/Light On.png') }}" alt="" />
                 <div class="text-wrapper-8">Question bank</div>
             </div>
-            <div class="frame-5"><img class="img" src="img/university.png" />
+            <div class="frame-5">
+                <img class="img" src="{{ url_for('static', filename='img/university.png') }}" alt="" />
                 <div class="text-wrapper-6">Class</div>
             </div>
-            <div class="frame-6"><img class="img" src="img/ratings.png" />
+            <div class="frame-6">
+                <img class="img" src="{{ url_for('static', filename='img/ratings.png') }}" alt="" />
                 <div class="text-wrapper-6">result</div>
             </div>
             <div class="frame-7">
-                <div class="frame-4"><img class="img" src="img/customer.png" /></div>
+                <div class="frame-4"><img class="img" src="{{ url_for('static', filename='img/customer.png') }}" alt="" /></div>
                 <div class="text-wrapper-6">personal profile</div>
             </div>
         </div>
-        <img class="profile" src="img/Profile2.png" />
+        <img class="profile" src="{{ url_for('static', filename='img/Profile2.png') }}" alt="" />
         <div class="ni-dung-trang">
             <div class="tiu-trang">
                 <div class="ti-u">Exam Management</div>
-                <div class="nt-hnh-ng">
-                    <div class="vector-wrapper"><img class="vector" src="img/plus.png" /></div>
+                <div class="nt-hnh-ng" onclick="openCreateExamModal()">
+                    <div class="vector-wrapper"><img class="vector" src="{{ url_for('static', filename='img/plus.png') }}" alt="" /></div>
                     <div class="n-i-dung">Create an exam</div>
                 </div>
             </div>
             <div class="b-lc-thi">
                 <div class="tm-kim-thi">
-                    <div class="img-wrapper"><img class="vector-2" src="img/search2.png" /></div>
-                    <div class="n-i-dung-2">Searching for exam papers...</div>
+                    <div class="img-wrapper"><img class="vector-2" src="{{ url_for('static', filename='img/search2.png') }}" alt="" /></div>
+                    <input type="text" id="examSearchInput" placeholder="Searching for exam papers..." oninput="filterTeacherExams()" style="border:none; background:transparent; outline:none; width:100%; font-size:14px;" />
                 </div>
                 <div class="lc-mn-hc">
-                    <div class="n-i-dung-3">All subjects</div>
-                    <div class="vector-wrapper"><img class="vector-3" src="img/chevron-down.png" /></div>
+                    <select id="examStatusFilter" onchange="loadTeacherExams()" style="border:none; background:transparent; outline:none; font-size:14px; cursor:pointer;">
+                        <option value="">All statuses</option>
+                        <option value="Draft">Draft</option>
+                        <option value="Published">Published</option>
+                        <option value="Completed">Completed</option>
+                    </select>
                 </div>
             </div>
-            <div class="danh-sch-thi">
+            <div class="danh-sch-thi" id="examListContainer">
                 <div class="navbar">
                     <div class="n-i-dung-4">STT</div>
                     <div class="n-i-dung-5">Exam Title</div>
-                    <div class="n-i-dung-6">Subject</div>
+                    <div class="n-i-dung-6">Syllabus / Status</div>
                     <div class="n-i-dung-7">Time</div>
-                    <div class="n-i-dung-8">quantity</div>
+                    <div class="n-i-dung-8">Marks</div>
                     <div class="n-i-dung-9">Operation</div>
                 </div>
-                <div class="thi">
-                    <div class="n-i-dung-10">1</div>
-                    <div class="n-i-dung-11">Midterm exam</div>
-                    <div class="n-i-dung-12">Higher Mathematics</div>
-                    <div class="n-i-dung-13">60 minute</div>
-                    <div class="n-i-dung-14">30</div>
-                    <img class="thao-tc-thi" src="img/Thao tác đề thi.png" />
-                </div>
-                <div class="thi">
-                    <div class="n-i-dung-10">2</div>
-                    <div class="n-i-dung-11">15-minute test</div>
-                    <div class="n-i-dung-12">Database</div>
-                    <div class="n-i-dung-13">15 minute</div>
-                    <div class="n-i-dung-14">20</div>
-                    <img class="thao-tc-thi" src="img/Thao tác đề thi.png" />
-                </div>
-                <div class="thi">
-                    <div class="n-i-dung-10">3</div>
-                    <div class="n-i-dung-11">Final exam</div>
-                    <div class="n-i-dung-12">Web Programming</div>
-                    <div class="n-i-dung-13">90 minute</div>
-                    <div class="n-i-dung-14">40</div>
-                    <img class="thao-tc-thi" src="img/Thao tác đề thi.png" />
-                </div>
-                <div class="thi">
-                    <div class="n-i-dung-10">4</div>
-                    <div class="n-i-dung-11">Quick check</div>
-                    <div class="n-i-dung-12">Computer network</div>
-                    <div class="n-i-dung-13">30 minute</div>
-                    <div class="n-i-dung-14">25</div>
-                    <img class="thao-tc-thi" src="img/Thao tác đề thi.png" />
-                </div>
-                <div class="thi">
-                    <div class="n-i-dung-10">5</div>
-                    <div class="n-i-dung-11">Chapter 3 Review</div>
-                    <div class="n-i-dung-12">Higher Mathematics</div>
-                    <div class="n-i-dung-13">45 minute</div>
-                    <div class="n-i-dung-14">20</div>
-                    <img class="thao-tc-thi" src="img/Thao tác đề thi.png" />
+                <div id="examRowsDynamic">
+                    <div class="thi">
+                        <div class="n-i-dung-10">1</div>
+                        <div class="n-i-dung-11">Sample Draft Exam</div>
+                        <div class="n-i-dung-12">Software Engineering (Draft)</div>
+                        <div class="n-i-dung-13">30 minute</div>
+                        <div class="n-i-dung-14">10</div>
+                        <img class="thao-tc-thi" src="{{ url_for('static', filename='img/Thao tác đề thi.png') }}" alt="" />
+                    </div>
                 </div>
                 <div class="phn-trang">
-                    <div class="trang">
-                        <div class="n-i-dung-15">‹</div>
-                    </div>
-                    <div class="n-i-dung-wrapper">
-                        <div class="n-i-dung-16">1</div>
-                    </div>
-                    <div class="trang">
-                        <div class="n-i-dung-15">2</div>
-                    </div>
-                    <div class="trang">
-                        <div class="n-i-dung-15">3</div>
-                    </div>
-                    <div class="trang">
-                        <div class="n-i-dung-15">›</div>
-                    </div>
+                    <div class="trang"><div class="n-i-dung-15">‹</div></div>
+                    <div class="n-i-dung-wrapper"><div class="n-i-dung-16">1</div></div>
+                    <div class="trang"><div class="n-i-dung-15">›</div></div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Modal Create Exam -->
+    <div class="teacher-modal-backdrop" id="createExamModal">
+        <div class="teacher-modal">
+            <h3>Create New Exam</h3>
+            <form id="createExamForm" onsubmit="submitCreateExam(event)">
+                <label>Exam Title</label>
+                <input type="text" name="title" required placeholder="e.g., Midterm Software Engineering" />
+
+                <label>Syllabus</label>
+                <select name="syllabus_id" id="syllabusSelect" required>
+                    <option value="1">Introduction to Software Engineering</option>
+                </select>
+
+                <label>Start Time</label>
+                <input type="datetime-local" name="start_time" required />
+
+                <label>End Time</label>
+                <input type="datetime-local" name="end_time" required />
+
+                <label>Duration (minutes)</label>
+                <input type="number" name="duration" min="1" value="45" required />
+
+                <label>Rules</label>
+                <textarea name="rules" rows="2" placeholder="Exam instructions..."></textarea>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeCreateExamModal()">Cancel</button>
+                    <button type="submit" class="btn-save">Create Draft</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let cachedExams = [];
+
+        async function loadTeacherSyllabuses() {
+            try {
+                const res = await fetch("/teacher/syllabuses");
+                const json = await res.json();
+                if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+                    const sel = document.getElementById("syllabusSelect");
+                    sel.innerHTML = json.data.map(s => `<option value="${s.syllabus_id}">${s.title} (${s.subject_name || ''})</option>`).join("");
+                }
+            } catch (e) { /* keep default option */ }
+        }
+
+        async function loadTeacherExams() {
+            const status = document.getElementById("examStatusFilter").value;
+            const url = status ? `/teacher/exams?status=${encodeURIComponent(status)}` : "/teacher/exams";
+            try {
+                const res = await fetch(url);
+                const json = await res.json();
+                if (json.success && Array.isArray(json.data)) {
+                    cachedExams = json.data;
+                    renderExams(cachedExams);
+                }
+            } catch (e) { /* keep fallback row */ }
+        }
+
+        function filterTeacherExams() {
+            const q = document.getElementById("examSearchInput").value.toLowerCase();
+            renderExams(cachedExams.filter(e => (e.title || "").toLowerCase().includes(q)));
+        }
+
+        function renderExams(list) {
+            const container = document.getElementById("examRowsDynamic");
+            if (!list.length) {
+                container.innerHTML = `<div class="thi"><div class="n-i-dung-11">No exams found.</div></div>`;
+                return;
+            }
+            container.innerHTML = list.map((ex, idx) => `
+                <div class="thi">
+                    <div class="n-i-dung-10">${idx + 1}</div>
+                    <div class="n-i-dung-11">${ex.title}</div>
+                    <div class="n-i-dung-12">${ex.syllabus_title || 'Syllabus #' + ex.syllabus_id} (${ex.status})</div>
+                    <div class="n-i-dung-13">${ex.duration} minute</div>
+                    <div class="n-i-dung-14">${ex.total_marks ?? 0}</div>
+                    <div style="display:flex; align-items:center;">
+                        ${ex.status === 'Draft' ? `<button class="action-pill pill-publish" onclick="publishExam(${ex.exam_id})">Publish</button>` : ''}
+                        ${ex.status === 'Draft' ? `<button class="action-pill pill-del" onclick="deleteExam(${ex.exam_id})">Delete</button>` : ''}
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function openCreateExamModal() {
+            loadTeacherSyllabuses();
+            document.getElementById("createExamModal").classList.add("open");
+        }
+
+        function closeCreateExamModal() {
+            document.getElementById("createExamModal").classList.remove("open");
+        }
+
+        async function submitCreateExam(e) {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const payload = Object.fromEntries(fd.entries());
+            const res = await fetch("/teacher/exams", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+            if (json.success) {
+                closeCreateExamModal();
+                e.target.reset();
+                loadTeacherExams();
+            } else {
+                alert(json.message || "Failed to create exam");
+            }
+        }
+
+        async function publishExam(examId) {
+            const res = await fetch(`/teacher/exams/${examId}/publish`, { method: "POST" });
+            const json = await res.json();
+            if (json.success) loadTeacherExams();
+            else alert(json.message || "Cannot publish exam");
+        }
+
+        async function deleteExam(examId) {
+            if (!confirm("Delete this draft exam?")) return;
+            const res = await fetch(`/teacher/exams/${examId}`, { method: "DELETE" });
+            const json = await res.json();
+            if (json.success) loadTeacherExams();
+            else alert(json.message || "Cannot delete exam");
+        }
+
+        document.addEventListener("DOMContentLoaded", loadTeacherExams);
+    </script>
 </body>
 
 </html>

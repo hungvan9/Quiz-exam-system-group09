@@ -1,52 +1,159 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="register-globals.css">
-    <link rel="stylesheet" href="register-style.css">
+    <title>Register - Quiz Examination System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='register-globals.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='register-style.css') }}">
+    <style>
+        .reg-input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            outline: none;
+            padding: 0 14px;
+            font-size: 14px;
+            color: #1f2937;
+            box-sizing: border-box;
+        }
+        .reg-submit-btn {
+            cursor: pointer;
+            border: none;
+            background: transparent;
+        }
+        .reg-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-family: sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .reg-alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #f87171;
+        }
+        .reg-alert.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #4ade80;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="register"><img class="homework" src="img/homework 1.png" />
-        <div class="rectangle"></div>
-        <div class="text-wrapper">Register An Account</div>
-        <div class="frame">
-            <p class="username"><span class="span">*</span>
-                <span class="text-wrapper-2">Username</span>
-            </p>
-            <div class="div"></div>
-        </div>
-        <div class="frame-2">
-            <p class="p"><span class="span">*</span>
-                <span class="text-wrapper-2">Email address</span>
-            </p>
-            <div class="div"></div>
-        </div>
-        <div class="frame-3">
-            <p class="p"><span class="span">*</span>
-                <span class="text-wrapper-2">Enter password</span>
-            </p>
-            <div class="div"></div>
-        </div>
-        <div class="frame-4">
-            <p class="p"><span class="span">*</span>
-                <span class="text-wrapper-2">Re-enter password</span>
-            </p>
-            <div class="div"></div>
-        </div>
-        <div class="text-wrapper-3">Quiz Examination System</div>
-        <img class="gemini-generated" src="img/Gemini_Generated_Image_yb98nlyb98nlyb98-removebg-preview 3.png" />
-        <div class="frame-5"><img class="img" src="img/Unchecked Checkbox.png" />
-            <div class="text-wrapper-4">Teacher</div>
-        </div>
-        <div class="frame-6"><img class="img" src="img/Checked Checkbox.png" />
-            <div class="text-wrapper-4">Student</div>
-        </div>
-        <div class="rectangle-2"></div>
-        <div class="text-wrapper-5">Register</div>
+    {% if error %}
+    <div class="reg-alert error">{{ error }}</div>
+    {% endif %}
+    {% if success_msg %}
+    <div class="reg-alert success">
+        {{ success_msg }} — <a href="{{ url_for('login') }}" style="font-weight: 700; color: #166534;">Back to Login</a>
     </div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('register') }}">
+        <input type="hidden" name="name" id="fullNameHidden" />
+        <input type="hidden" name="role" id="roleHidden" value="STUDENT" />
+
+        <div class="register">
+            <img class="homework" src="{{ url_for('static', filename='img/homework 1.png') }}" alt="" />
+            <div class="rectangle"></div>
+            <div class="text-wrapper">Register An Account</div>
+
+            <div class="frame">
+                <p class="username"><span class="span">*</span>
+                    <span class="text-wrapper-2">Username</span>
+                </p>
+                <div class="div">
+                    <input class="reg-input" type="text" name="username" id="regUsername" placeholder="Enter username" required />
+                </div>
+            </div>
+
+            <div class="frame-2">
+                <p class="p"><span class="span">*</span>
+                    <span class="text-wrapper-2">Email address</span>
+                </p>
+                <div class="div">
+                    <input class="reg-input" type="email" name="email" placeholder="Enter email address" required />
+                </div>
+            </div>
+
+            <div class="frame-3">
+                <p class="p"><span class="span">*</span>
+                    <span class="text-wrapper-2">Enter password</span>
+                </p>
+                <div class="div">
+                    <input class="reg-input" type="password" name="password" placeholder="Enter password" required />
+                </div>
+            </div>
+
+            <div class="frame-4">
+                <p class="p"><span class="span">*</span>
+                    <span class="text-wrapper-2">Re-enter password</span>
+                </p>
+                <div class="div">
+                    <input class="reg-input" type="password" name="re_password" placeholder="Re-enter password" required />
+                </div>
+            </div>
+
+            <div class="text-wrapper-3">Quiz Examination System</div>
+            <img class="gemini-generated" src="{{ url_for('static', filename='img/Gemini_Generated_Image_yb98nlyb98nlyb98-removebg-preview 3.png') }}" alt="" />
+
+            <div class="frame-5" id="roleTeacherBtn" style="cursor: pointer;">
+                <img class="img" id="teacherCheckImg" src="{{ url_for('static', filename='img/Unchecked Checkbox.png') }}" alt="" />
+                <div class="text-wrapper-4">Teacher</div>
+            </div>
+            <div class="frame-6" id="roleStudentBtn" style="cursor: pointer;">
+                <img class="img" id="studentCheckImg" src="{{ url_for('static', filename='img/Checked Checkbox.png') }}" alt="" />
+                <div class="text-wrapper-4">Student</div>
+            </div>
+
+            <button type="submit" class="rectangle-2 reg-submit-btn" aria-label="Register"></button>
+            <button type="submit" class="text-wrapper-5 reg-submit-btn">Register</button>
+
+            <a href="{{ url_for('login') }}" style="position: fixed; bottom: 20px; right: 24px; font-family: sans-serif; font-size: 14px; color: #2563eb; text-decoration: none; font-weight: 600;">
+                Already have an account? Login
+            </a>
+        </div>
+    </form>
+
+    <script>
+        const usernameEl = document.getElementById("regUsername");
+        const fullNameEl = document.getElementById("fullNameHidden");
+        if (usernameEl && fullNameEl) {
+            usernameEl.addEventListener("input", () => {
+                fullNameEl.value = usernameEl.value.trim();
+            });
+        }
+
+        const checkedSrc = "{{ url_for('static', filename='img/Checked Checkbox.png') }}";
+        const uncheckedSrc = "{{ url_for('static', filename='img/Unchecked Checkbox.png') }}";
+        const roleInput = document.getElementById("roleHidden");
+        const teacherBtn = document.getElementById("roleTeacherBtn");
+        const studentBtn = document.getElementById("roleStudentBtn");
+        const teacherImg = document.getElementById("teacherCheckImg");
+        const studentImg = document.getElementById("studentCheckImg");
+
+        teacherBtn.addEventListener("click", () => {
+            roleInput.value = "TEACHER";
+            teacherImg.src = checkedSrc;
+            studentImg.src = uncheckedSrc;
+        });
+
+        studentBtn.addEventListener("click", () => {
+            roleInput.value = "STUDENT";
+            studentImg.src = checkedSrc;
+            teacherImg.src = uncheckedSrc;
+        });
+    </script>
 </body>
 
 </html>

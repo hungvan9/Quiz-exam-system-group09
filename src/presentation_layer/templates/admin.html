@@ -1,154 +1,379 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="admin-globals.css">
-    <link rel="stylesheet" href="admin-style.css">
+    <title>Admin Dashboard - Quiz Examination System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin-globals.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin-style.css') }}">
+    <style>
+        .admin-nav-item { cursor: pointer; }
+        .admin-panel {
+            position: absolute;
+            left: 290px;
+            top: 155px;
+            width: calc(100% - 330px);
+            max-width: 1120px;
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            font-family: sans-serif;
+            display: none;
+            z-index: 20;
+        }
+        .admin-panel.active { display: block; }
+        .admin-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .admin-toolbar input, .admin-toolbar select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-warn {
+            background: #f59e0b;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-danger {
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .admin-table th, .admin-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        .admin-table th { background: #f8fafc; color: #374151; }
+        .badge {
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge.ACTIVE { background: #dcfce7; color: #166534; }
+        .badge.LOCKED { background: #fee2e2; color: #991b1b; }
+        .flash-banner {
+            position: fixed;
+            top: 16px;
+            right: 24px;
+            z-index: 9999;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-family: sans-serif;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        .flash-banner.success { background: #dcfce7; color: #166534; border: 1px solid #4ade80; }
+        .flash-banner.error { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+    </style>
 </head>
 
 <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="flash-banner {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
     <div class="admin">
         <div class="rectangle"></div>
-        <img class="gemini-generated" src="img/Gemini_Generated_Image_yb98nlyb98nlyb98-removebg-preview 1.png" />
+        <img class="gemini-generated" src="{{ url_for('static', filename='img/Gemini_Generated_Image_yb98nlyb98nlyb98-removebg-preview 1.png') }}" alt="" />
         <div class="text-wrapper">Quiz Examination System</div>
         <div class="div"></div>
-        <img class="search" src="img/search.png" />
-        <div class="text-wrapper-2">Admin</div>
+        <img class="search" src="{{ url_for('static', filename='img/search.png') }}" alt="" />
+        <div class="text-wrapper-2">{{ session.get('name', 'Admin') }}</div>
         <div class="text-wrapper-3">Administrator</div>
-        <div class="text-wrapper-4">join</div>
-        <div class="text-wrapper-5">join</div>
+        <a href="{{ url_for('logout') }}" class="text-wrapper-4" style="text-decoration: none; color: #ef4444; font-weight: 600;">Logout</a>
+        <div class="text-wrapper-5"></div>
         <div class="rectangle-2"></div>
-        <div class="mc-iu-hng">
-            <div class="vector-wrapper"><img class="vector" src="img/layout-dashboard.png" /></div>
+
+        <!-- Sidebar Navigation -->
+        <div class="mc-iu-hng admin-nav-item" onclick="switchAdminTab('overview')">
+            <div class="vector-wrapper"><img class="vector" src="{{ url_for('static', filename='img/layout-dashboard.png') }}" alt="" /></div>
             <div class="n-i-dung">Overview</div>
         </div>
-        <div class="mc-iu-hng-2">
-            <div class="vector-wrapper"><img class="img" src="img/users-round.png" /></div>
+        <div class="mc-iu-hng-2 admin-nav-item" onclick="switchAdminTab('users')">
+            <div class="vector-wrapper"><img class="img" src="{{ url_for('static', filename='img/users-round.png') }}" alt="" /></div>
             <div class="n-i-dung">User management</div>
         </div>
-        <div class="mc-iu-hng-3">
-            <div class="vector-wrapper"><img class="vector-2" src="img/notebook-text.png" /></div>
+        <div class="mc-iu-hng-3 admin-nav-item" onclick="switchAdminTab('subjects')">
+            <div class="vector-wrapper"><img class="vector-2" src="{{ url_for('static', filename='img/notebook-text.png') }}" alt="" /></div>
             <div class="n-i-dung-2">Course Management</div>
         </div>
-        <div class="mc-iu-hng-4">
-            <div class="vector-wrapper"><img class="vector-2" src="img/school.png" /></div>
+        <div class="mc-iu-hng-4 admin-nav-item" onclick="switchAdminTab('overview')">
+            <div class="vector-wrapper"><img class="vector-2" src="{{ url_for('static', filename='img/school.png') }}" alt="" /></div>
             <div class="n-i-dung-3">Classroom management</div>
         </div>
-        <div class="mc-iu-hng-5">
-            <div class="vector-wrapper"><img class="img" src="img/chart-no-axes-combined.png" /></div>
+        <div class="mc-iu-hng-5 admin-nav-item" onclick="switchAdminTab('overview')">
+            <div class="vector-wrapper"><img class="img" src="{{ url_for('static', filename='img/chart-no-axes-combined.png') }}" alt="" /></div>
             <div class="n-i-dung">Statistical</div>
         </div>
-        <div class="mc-iu-hng-6">
-            <div class="vector-wrapper"><img class="vector-3" src="img/settings.png" /></div>
-            <div class="n-i-dung">Setting</div>
+        <a href="{{ url_for('logout') }}" class="mc-iu-hng-6" style="text-decoration: none;">
+            <div class="vector-wrapper"><img class="vector-3" src="{{ url_for('static', filename='img/settings.png') }}" alt="" /></div>
+            <div class="n-i-dung">Logout</div>
+        </a>
+
+        <div class="ti-u" id="adminPageTitle">System Overview</div>
+        <img class="test-account" src="{{ url_for('static', filename='img/Test Account.png') }}" alt="" />
+
+        <!-- TAB 1: SYSTEM OVERVIEW -->
+        <div id="overviewSection">
+            <div class="ch-s-h-thng">
+                <div class="th-ni-dung">
+                    <div class="ch-s">
+                        <div class="biu-tng-ni-dung">
+                            <div class="img-wrapper"><img class="vector-4" src="{{ url_for('static', filename='img/users-round.png') }}" alt="" /></div>
+                        </div>
+                        <div class="gi-tr">{{ stats.get('students', stats.get('student_count', 0)) if stats else 0 }}</div>
+                        <div class="n-i-dung-4">Student</div>
+                    </div>
+                </div>
+                <div class="th-ni-dung">
+                    <div class="ch-s">
+                        <div class="user-round-wrapper">
+                            <div class="img-wrapper"><img class="vector-5" src="{{ url_for('static', filename='img/users-round.png') }}" alt="" /></div>
+                        </div>
+                        <div class="gi-tr">{{ stats.get('teachers', stats.get('teacher_count', 0)) if stats else 0 }}</div>
+                        <div class="n-i-dung-4">Teacher</div>
+                    </div>
+                </div>
+                <div class="th-ni-dung">
+                    <div class="ch-s">
+                        <div class="book-open-wrapper">
+                            <div class="img-wrapper"><img class="vector-4" src="{{ url_for('static', filename='img/book-open.png') }}" alt="" /></div>
+                        </div>
+                        <div class="gi-tr">{{ stats.get('subjects', stats.get('subject_count', 0)) if stats else 0 }}</div>
+                        <div class="n-i-dung-4">Subject</div>
+                    </div>
+                </div>
+                <div class="th-ni-dung">
+                    <div class="ch-s">
+                        <div class="clipboard-list-wrapper">
+                            <div class="img-wrapper"><img class="vector-6" src="{{ url_for('static', filename='img/clipboard-list.png') }}" alt="" /></div>
+                        </div>
+                        <div class="gi-tr">{{ stats.get('exams', stats.get('exam_count', 0)) if stats else 0 }}</div>
+                        <div class="n-i-dung-4">Exam paper</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="thng-k-v-xp-hng">
+                <div class="th-ni-dung-2">
+                    <div class="n-i-dung-5">Exam statistics</div>
+                    <div class="biu-thng-k-bi-thi">
+                        <div class="ch-gii">
+                            <div class="ch-dn-d-liu">
+                                <div class="mu-d-liu"></div>
+                                <div class="n-i-dung-6">Completed the exam</div>
+                            </div>
+                            <div class="ch-dn-d-liu">
+                                <div class="mu-d-liu-2"></div>
+                                <div class="n-i-dung-6">Exam not yet taken</div>
+                            </div>
+                        </div>
+                        <div class="vng-biu">
+                            <div class="trc-tung">
+                                <div class="n-i-dung-7">90</div>
+                                <div class="n-i-dung-8">56</div>
+                                <div class="n-i-dung-8">38</div>
+                                <div class="n-i-dung-8">22</div>
+                                <div class="n-i-dung-8">0</div>
+                            </div>
+                            <img class="cc-ct-thng-k" src="{{ url_for('static', filename='img/Vùng biểu đồ.png') }}" alt="" />
+                        </div>
+                        <div class="trc-thng">
+                            <div class="th-ng">T9</div>
+                            <div class="th-ng">T10</div>
+                            <div class="th-ng">T11</div>
+                            <div class="th-ng">T12</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="th-ni-dung-3">
+                    <p class="p">Top 5 subjects with the highest number of exam entries</p>
+                    <div class="xp-hng-mn-hc">
+                        <div class="mn-hc-trong-bng-xp">
+                            <div class="n-i-dung-9">1</div>
+                            <div class="n-i-dung-10">Higher Mathematics</div>
+                            <div class="n-i-dung-11">542 turn</div>
+                        </div>
+                        <div class="mn-hc-trong-bng-xp-2">
+                            <div class="n-i-dung-9">2</div>
+                            <div class="n-i-dung-10">Database</div>
+                            <div class="n-i-dung-11">438 turn</div>
+                        </div>
+                        <div class="mn-hc-trong-bng-xp-2">
+                            <div class="n-i-dung-9">3</div>
+                            <div class="n-i-dung-10">Web Programming</div>
+                            <div class="n-i-dung-11">371 turn</div>
+                        </div>
+                        <div class="mn-hc-trong-bng-xp-2">
+                            <div class="n-i-dung-9">4</div>
+                            <div class="n-i-dung-10">Computer network</div>
+                            <div class="n-i-dung-11">298 turn</div>
+                        </div>
+                        <div class="mn-hc-trong-bng-xp-2">
+                            <div class="n-i-dung-9">5</div>
+                            <div class="n-i-dung-10">General Physics</div>
+                            <div class="n-i-dung-11">245 turn</div>
+                        </div>
+                    </div>
+                    <div class="khong-m-bng-xp-hng"></div>
+                </div>
+            </div>
         </div>
-        <div class="ti-u">System Overview</div>
-        <img class="test-account" src="img/Test Account.png" />
-        <div class="ch-s-h-thng">
-            <div class="th-ni-dung">
-                <div class="ch-s">
-                    <div class="biu-tng-ni-dung">
-                        <div class="img-wrapper"><img class="vector-4" src="img/users-round.png" /></div>
-                    </div>
-                    <div class="gi-tr">120</div>
-                    <div class="n-i-dung-4">Student</div>
-                </div>
-            </div>
-            <div class="th-ni-dung">
-                <div class="ch-s">
-                    <div class="user-round-wrapper">
-                        <div class="img-wrapper"><img class="vector-5" src="img/users-round.png" /></div>
-                    </div>
-                    <div class="gi-tr">12</div>
-                    <div class="n-i-dung-4">Teacher</div>
-                </div>
-            </div>
-            <div class="th-ni-dung">
-                <div class="ch-s">
-                    <div class="book-open-wrapper">
-                        <div class="img-wrapper"><img class="vector-4" src="img/book-open.png" /></div>
-                    </div>
-                    <div class="gi-tr">25</div>
-                    <div class="n-i-dung-4">Subject</div>
-                </div>
-            </div>
-            <div class="th-ni-dung">
-                <div class="ch-s">
-                    <div class="clipboard-list-wrapper">
-                        <div class="img-wrapper"><img class="vector-6" src="img/clipboard-list.png" /></div>
-                    </div>
-                    <div class="gi-tr">8</div>
-                    <div class="n-i-dung-4">Exam paper</div>
-                </div>
-            </div>
+
+        <!-- TAB 2: USER MANAGEMENT -->
+        <div id="usersPanel" class="admin-panel">
+            <form method="GET" action="{{ url_for('admin_dashboard') }}" class="admin-toolbar">
+                <input type="text" name="q_user" value="{{ keyword_user or '' }}" placeholder="Search username, name, email..." />
+                <select name="role">
+                    <option value="">All Roles</option>
+                    <option value="STUDENT" {% if role_filter == 'STUDENT' %}selected{% endif %}>Student</option>
+                    <option value="TEACHER" {% if role_filter == 'TEACHER' %}selected{% endif %}>Teacher</option>
+                    <option value="ADMIN" {% if role_filter == 'ADMIN' %}selected{% endif %}>Admin</option>
+                </select>
+                <button type="submit" class="btn-primary">Filter Users</button>
+            </form>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users or [] %}
+                    <tr>
+                        <td>{{ u.user_id }}</td>
+                        <td>{{ u.username }}</td>
+                        <td>{{ u.name }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.role }}</td>
+                        <td><span class="badge {{ u.status }}">{{ u.status }}</span></td>
+                        <td style="display: flex; gap: 6px;">
+                            {% if u.role != 'ADMIN' %}
+                            <form method="POST" action="{{ url_for('update_user_status', user_id=u.user_id) }}">
+                                <input type="hidden" name="status" value="{{ 'LOCKED' if u.status == 'ACTIVE' else 'ACTIVE' }}" />
+                                <button type="submit" class="btn-warn">{{ 'Lock' if u.status == 'ACTIVE' else 'Unlock' }}</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('delete_user', user_id=u.user_id) }}" onsubmit="return confirm('Delete this user?');">
+                                <button type="submit" class="btn-danger">Delete</button>
+                            </form>
+                            {% else %}
+                            <span style="color: #9ca3af; font-size: 12px;">Protected</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" style="text-align:center; color:#6b7280;">No users found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        <div class="thng-k-v-xp-hng">
-            <div class="th-ni-dung-2">
-                <div class="n-i-dung-5">Exam statistics</div>
-                <div class="biu-thng-k-bi-thi">
-                    <div class="ch-gii">
-                        <div class="ch-dn-d-liu">
-                            <div class="mu-d-liu"></div>
-                            <div class="n-i-dung-6">Completed the exam</div>
-                        </div>
-                        <div class="ch-dn-d-liu">
-                            <div class="mu-d-liu-2"></div>
-                            <div class="n-i-dung-6">Exam not yet taken</div>
-                        </div>
-                    </div>
-                    <div class="vng-biu">
-                        <div class="trc-tung">
-                            <div class="n-i-dung-7">90</div>
-                            <div class="n-i-dung-8">56</div>
-                            <div class="n-i-dung-8">38</div>
-                            <div class="n-i-dung-8">22</div>
-                            <div class="n-i-dung-8">0</div>
-                        </div>
-                        <img class="cc-ct-thng-k" src="img/Vùng biểu đồ.png" />
-                    </div>
-                    <div class="trc-thng">
-                        <div class="th-ng">T9</div>
-                        <div class="th-ng">T10</div>
-                        <div class="th-ng">T11</div>
-                        <div class="th-ng">T12</div>
-                    </div>
-                </div>
-            </div>
-            <div class="th-ni-dung-3">
-                <p class="p">Top 5 subjects with the highest number of exam entries</p>
-                <div class="xp-hng-mn-hc">
-                    <div class="mn-hc-trong-bng-xp">
-                        <div class="n-i-dung-9">1</div>
-                        <div class="n-i-dung-10">Higher Mathematics</div>
-                        <div class="n-i-dung-11">542 turn</div>
-                    </div>
-                    <div class="mn-hc-trong-bng-xp-2">
-                        <div class="n-i-dung-9">2</div>
-                        <div class="n-i-dung-10">Database</div>
-                        <div class="n-i-dung-11">438 turn</div>
-                    </div>
-                    <div class="mn-hc-trong-bng-xp-2">
-                        <div class="n-i-dung-9">3</div>
-                        <div class="n-i-dung-10">Web Programming</div>
-                        <div class="n-i-dung-11">371 turn</div>
-                    </div>
-                    <div class="mn-hc-trong-bng-xp-2">
-                        <div class="n-i-dung-9">4</div>
-                        <div class="n-i-dung-10">Computer network</div>
-                        <div class="n-i-dung-11">298 turn</div>
-                    </div>
-                    <div class="mn-hc-trong-bng-xp-2">
-                        <div class="n-i-dung-9">5</div>
-                        <div class="n-i-dung-10">General Physics</div>
-                        <div class="n-i-dung-11">245 turn</div>
-                    </div>
-                </div>
-                <div class="khong-m-bng-xp-hng"></div>
-            </div>
+
+        <!-- TAB 3: COURSE / SUBJECT MANAGEMENT -->
+        <div id="subjectsPanel" class="admin-panel">
+            <form method="POST" action="{{ url_for('add_subject') }}" class="admin-toolbar">
+                <input type="text" name="subject_name" placeholder="New Subject Name" required />
+                <input type="text" name="description" placeholder="Description (optional)" style="min-width: 260px;" />
+                <button type="submit" class="btn-primary">+ Add Subject</button>
+            </form>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Subject Name</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in subjects or [] %}
+                    <tr>
+                        <td>{{ s.subject_id }}</td>
+                        <td>{{ s.subject_name }}</td>
+                        <td>{{ s.description or '-' }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('delete_subject', subject_id=s.subject_id) }}" onsubmit="return confirm('Delete this subject?');">
+                                <button type="submit" class="btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" style="text-align:center; color:#6b7280;">No subjects available.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
+
+    <script>
+        function switchAdminTab(tab) {
+            const overview = document.getElementById("overviewSection");
+            const usersPanel = document.getElementById("usersPanel");
+            const subjectsPanel = document.getElementById("subjectsPanel");
+            const title = document.getElementById("adminPageTitle");
+
+            overview.style.display = "none";
+            usersPanel.classList.remove("active");
+            subjectsPanel.classList.remove("active");
+
+            if (tab === "users") {
+                usersPanel.classList.add("active");
+                title.textContent = "User Management";
+            } else if (tab === "subjects") {
+                subjectsPanel.classList.add("active");
+                title.textContent = "Course & Subject Management";
+            } else {
+                overview.style.display = "block";
+                title.textContent = "System Overview";
+            }
+        }
+
+        {% if keyword_user or role_filter %}
+        switchAdminTab("users");
+        {% elif keyword_subject %}
+        switchAdminTab("subjects");
+        {% endif %}
+    </script>
 </body>
 
 </html>

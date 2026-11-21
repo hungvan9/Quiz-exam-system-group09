@@ -1,25 +1,27 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="result-globals.css">
-    <link rel="stylesheet" href="result-style.css">
+    <title>Exam Results - Quiz Examination System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='result-globals.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='result-style.css') }}">
 </head>
 
 <body>
     <div class="result">
         <div class="rectangle"></div>
         <div class="div"></div>
-        <img class="profile" src="img/profile.png" />
-        <img class="gemini-generated" src="img/Gemini_Generated_Image_yb98nlyb98nlyb98-removebg-preview 1.png" />
+        <img class="profile" src="{{ url_for('static', filename='img/profile.png') }}" alt="" />
+        <img class="gemini-generated" src="{{ url_for('static', filename='img/Gemini_Generated_Image_yb98nlyb98nlyb98-removebg-preview 1.png') }}" alt="" />
         <div class="text-wrapper">Quiz Examination System</div>
         <div class="rectangle-2"></div>
-        <img class="search" src="img/search.png" />
-        <div class="text-wrapper-2">Nguyên văn A</div>
-        <div class="text-wrapper-3">student</div>
+        <img class="search" src="{{ url_for('static', filename='img/search.png') }}" alt="" />
+        <div class="text-wrapper-2">{{ session.get('name', 'Student') }}</div>
+        <div class="text-wrapper-3">
+            Student · <a href="{{ url_for('logout') }}" style="color: #ef4444; text-decoration: none; font-weight: 600;">Logout</a>
+        </div>
         <div class="rectangle-3"></div>
         <div class="rectangle-4"></div>
         <div class="thng-k-kt-qu">
@@ -41,40 +43,46 @@
             </div>
         </div>
         <div class="text-wrapper-4">exam results</div>
-        <div class="text-wrapper-5">join</div>
-        <div class="text-wrapper-6">join</div>
+        <a href="{{ url_for('student_dashboard') }}" class="text-wrapper-5" style="text-decoration: none;">Home</a>
+        <div class="text-wrapper-6"></div>
         <div class="frame">
-            <div class="frame-2"><img class="img" src="img/home.png" />
+            <a href="{{ url_for('student_dashboard') }}" class="frame-2" style="text-decoration: none;">
+                <img class="img" src="{{ url_for('static', filename='img/home.png') }}" alt="" />
                 <div class="text-wrapper-7">Home</div>
-            </div>
-            <div class="frame-3"><img class="img" src="img/Pass Fail.png" />
+            </a>
+            <a href="{{ url_for('student_exam_page', exam_id=1) }}" class="frame-3" style="text-decoration: none;">
+                <img class="img" src="{{ url_for('static', filename='img/Pass Fail.png') }}" alt="" />
                 <div class="text-wrapper-7">Exam paper</div>
-            </div>
-            <div class="frame-4"><img class="img" src="img/Light On.png" />
+            </a>
+            <div class="frame-4">
+                <img class="img" src="{{ url_for('static', filename='img/Light On.png') }}" alt="" />
                 <div class="text-wrapper-7">practice</div>
             </div>
-            <div class="frame-3"><img class="img" src="img/clock.png" />
+            <div class="frame-3">
+                <img class="img" src="{{ url_for('static', filename='img/clock.png') }}" alt="" />
                 <div class="text-wrapper-7">exam history</div>
             </div>
-            <div class="frame-5"><img class="img" src="img/ratings.png" />
+            <div class="frame-5">
+                <img class="img" src="{{ url_for('static', filename='img/ratings.png') }}" alt="" />
                 <div class="text-wrapper-8">result</div>
             </div>
             <div class="frame-6">
-                <div class="frame-4"><img class="img" src="img/customer.png" /></div>
+                <div class="frame-4"><img class="img" src="{{ url_for('static', filename='img/customer.png') }}" alt="" /></div>
                 <div class="text-wrapper-7">personal profile</div>
             </div>
         </div>
         <div class="thng-tin-kt-qu">
             <div class="biu-tng-ni-dung">
-                <div class="file-chart-column"><img class="vector" src="img/Vector.png" /></div>
+                <div class="file-chart-column"><img class="vector" src="{{ url_for('static', filename='img/Vector.png') }}" alt="" /></div>
             </div>
             <div class="thng-tin-bi-thi">
                 <div class="n-i-dung-5">Database</div>
                 <p class="n-i-dung-6">Time allotted for the test 30p|&nbsp;&nbsp;28/10/2026 14:00</p>
             </div>
             <div class="im-bi-thi">
-                <div class="vng-im-s"><img class="thang-im" src="img/thang-i-m.svg" />
-                    <img class="im-t-c" src="img/Vòng điểm số.png" />
+                <div class="vng-im-s">
+                    <img class="thang-im" src="{{ url_for('static', filename='img/thang-i-m.svg') }}" alt="" />
+                    <img class="im-t-c" src="{{ url_for('static', filename='img/Vòng điểm số.png') }}" alt="" />
                     <div class="i-m">8.5</div>
                     <div class="n-i-dung-7">/10</div>
                 </div>
@@ -95,7 +103,7 @@
                     <div class="d-li-u-p-n">B</div>
                     <div class="d-li-u-p-n">B</div>
                     <div class="kt-qu-cu-hi">
-                        <div class="vector-wrapper"><img class="vector-2" src="img/check.png" /></div>
+                        <div class="vector-wrapper"><img class="vector-2" src="{{ url_for('static', filename='img/check.png') }}" alt="" /></div>
                         <div class="n-i-dung-10">true</div>
                     </div>
                 </div>
@@ -104,7 +112,7 @@
                     <div class="d-li-u-p-n">A</div>
                     <div class="d-li-u-p-n">A</div>
                     <div class="kt-qu-cu-hi">
-                        <div class="vector-wrapper"><img class="vector-2" src="img/check.png" /></div>
+                        <div class="vector-wrapper"><img class="vector-2" src="{{ url_for('static', filename='img/check.png') }}" alt="" /></div>
                         <div class="n-i-dung-10">true</div>
                     </div>
                 </div>
@@ -113,7 +121,7 @@
                     <div class="d-li-u-p-n">C</div>
                     <div class="d-li-u-p-n">B</div>
                     <div class="kt-qu-cu-hi">
-                        <div class="vector-wrapper"><img class="vector-3" src="img/x.png" /></div>
+                        <div class="vector-wrapper"><img class="vector-3" src="{{ url_for('static', filename='img/x.png') }}" alt="" /></div>
                         <div class="n-i-dung-11">false</div>
                     </div>
                 </div>
@@ -122,7 +130,7 @@
                     <div class="d-li-u-p-n">D</div>
                     <div class="d-li-u-p-n">D</div>
                     <div class="kt-qu-cu-hi">
-                        <div class="vector-wrapper"><img class="vector-2" src="img/check.png" /></div>
+                        <div class="vector-wrapper"><img class="vector-2" src="{{ url_for('static', filename='img/check.png') }}" alt="" /></div>
                         <div class="n-i-dung-10">true</div>
                     </div>
                 </div>
@@ -131,7 +139,7 @@
                     <div class="d-li-u-p-n">B</div>
                     <div class="d-li-u-p-n">B</div>
                     <div class="kt-qu-cu-hi">
-                        <div class="vector-wrapper"><img class="vector-2" src="img/check.png" /></div>
+                        <div class="vector-wrapper"><img class="vector-2" src="{{ url_for('static', filename='img/check.png') }}" alt="" /></div>
                         <div class="n-i-dung-10">true</div>
                     </div>
                 </div>
