@@ -239,14 +239,17 @@ def _create_exam_with_auto_syllabus(teacher_id: int, payload: Dict[str, Any]) ->
             cursor.close()
             conn.close()
 
-        created_syl = teacher_service.create_syllabus(
-            teacher_id,
-            {
-                "subject_id": sub_id,
-                "title": f"{sub_name} Syllabus",
-                "description": f"Syllabus for {sub_name}",
-                "chapters": [],
-            },
+        created_syl = cast(
+            Dict[str, Any],
+            teacher_service.create_syllabus(
+                teacher_id,
+                {
+                    "subject_id": sub_id,
+                    "title": f"{sub_name} Syllabus",
+                    "description": f"Syllabus for {sub_name}",
+                    "chapters": [],
+                },
+            ),
         )
         new_syl_id = created_syl["syllabus_id"]
         try:
@@ -256,7 +259,7 @@ def _create_exam_with_auto_syllabus(teacher_id: int, payload: Dict[str, Any]) ->
         payload = dict(payload)
         payload["syllabus_id"] = new_syl_id
 
-    return teacher_service.create_exam(teacher_id, payload)
+    return cast(Dict[str, Any], teacher_service.create_exam(teacher_id, payload))
 
 
 @teacher_bp.post("/exams")
