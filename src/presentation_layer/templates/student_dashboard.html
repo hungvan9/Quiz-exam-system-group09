@@ -12,6 +12,40 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='student-style.css') }}"
     />
+    <style>
+      .live-exam-list {
+        position: absolute;
+        top: 470px;
+        left: 345px;
+        width: 635px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        z-index: 20;
+        font-family: sans-serif;
+      }
+      .live-exam-row {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+      }
+      .live-join-btn {
+        background: #5b6ef5;
+        color: #ffffff;
+        text-decoration: none;
+        padding: 10px 28px;
+        border-radius: 14px;
+        font-weight: 600;
+        font-size: 15px;
+      }
+      .live-join-btn:hover {
+        background: #4356e8;
+      }
+    </style>
   </head>
 
   <body>
@@ -57,11 +91,11 @@
       <p class="text-wrapper-5">The test has been completed.</p>
       <div class="text-wrapper-6">average score</div>
       <div class="text-wrapper-7">exam currently being taken</div>
-      <div class="text-wrapper-8">2</div>
+      <div class="text-wrapper-8" id="statAvailableCount">2</div>
       <div class="text-wrapper-9">5</div>
       <div class="text-wrapper-10">7.5</div>
       <div class="text-wrapper-11">1</div>
-      <p class="text-wrapper-12">The exam is coming up</p>
+      <p class="text-wrapper-12">Available &amp; Upcoming Exams</p>
       <div class="rectangle-9"></div>
       <div class="rectangle-10"></div>
       <div class="rectangle-11"></div>
@@ -69,55 +103,10 @@
       <div class="text-wrapper-14">Database</div>
       <div class="text-wrapper-15">Operating System</div>
       <div class="text-wrapper-16">Introduction to Information Technology</div>
-      <div class="rectangle-12"></div>
-      <div class="rectangle-13"></div>
-      <div class="rectangle-14"></div>
-      <a
-        href="{{ url_for('student_exam_page', exam_id=1) }}"
-        class="text-wrapper-17"
-        style="text-decoration: none"
-        >join</a
-      >
-      <a
-        href="{{ url_for('student_exam_page', exam_id=1) }}"
-        class="text-wrapper-18"
-        style="text-decoration: none"
-        >join</a
-      >
-      <a
-        href="{{ url_for('student_exam_page', exam_id=1) }}"
-        class="text-wrapper-19"
-        style="text-decoration: none"
-        >join</a
-      >
       <div class="rectangle-15"></div>
       <div class="rectangle-16"></div>
       <div class="rectangle-17"></div>
       <div class="rectangle-18"></div>
-      <div class="frame">
-        <img
-          class="test-passed"
-          src="{{ url_for('static', filename='img/Test Passed.png') }}"
-          alt=""
-        />
-        <p class="div-2">
-          <span class="span">Database<br /></span>
-          <span class="text-wrapper-20"
-            >18:00 - 19:00&nbsp;&nbsp;29/5/2026</span
-          >
-        </p>
-      </div>
-      <div class="frame-2">
-        <img
-          class="test-passed"
-          src="{{ url_for('static', filename='img/Test Passed.png') }}"
-          alt=""
-        />
-        <p class="div-2">
-          <span class="span">Operating System<br /></span>
-          <span class="text-wrapper-20">20:00 - 21:00&nbsp;&nbsp;1/6/2026</span>
-        </p>
-      </div>
       <img
         class="star-filled"
         src="{{ url_for('static', filename='img/Search.png') }}"
@@ -143,19 +132,6 @@
         src="{{ url_for('static', filename='img/Test Passed.png') }}"
         alt=""
       />
-      <div class="frame-3">
-        <img
-          class="test-passed"
-          src="{{ url_for('static', filename='img/Test Passed.png') }}"
-          alt=""
-        />
-        <p class="div-2">
-          <span class="span">Object-oriented programming<br /></span>
-          <span class="text-wrapper-20"
-            >15:30 - 16:30&nbsp;&nbsp;29/5/2026</span
-          >
-        </p>
-      </div>
       <img
         class="today"
         src="{{ url_for('static', filename='img/Today.png') }}"
@@ -171,6 +147,21 @@
         src="{{ url_for('static', filename='img/Check Mark.png') }}"
         alt=""
       />
+
+      <!-- Dynamic Published Exams List -->
+      <div class="live-exam-list" id="availableExamsList">
+        <div class="live-exam-row">
+          <div>
+            <div style="font-weight: 700; color: #111827; font-size: 16px">
+              Loading published exams...
+            </div>
+            <div style="font-size: 13px; color: #6b7280">
+              Fetching active schedule
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="frame-4">
         <a
           href="{{ url_for('student_dashboard') }}"
@@ -236,5 +227,57 @@
         </div>
       </div>
     </div>
+
+    <script>
+      async function loadStudentExams() {
+        const container = document.getElementById("availableExamsList");
+        try {
+          const res = await fetch("/student/exams");
+          const json = await res.json();
+          const exams =
+            json.success && Array.isArray(json.exams) ? json.exams : [];
+          document.getElementById("statAvailableCount").textContent = String(
+            exams.length,
+          );
+
+          if (exams.length === 0) {
+            container.innerHTML = `
+                        <div class="live-exam-row">
+                            <div>
+                                <div style="font-weight: 700; color: #111827; font-size: 16px;">No published exams open right now</div>
+                                <div style="font-size: 13px; color: #6b7280;">Ask a Teacher to create &amp; publish an exam with current start/end times.</div>
+                            </div>
+                        </div>
+                    `;
+            return;
+          }
+
+          container.innerHTML = exams
+            .slice(0, 3)
+            .map(
+              (ex) => `
+                    <div class="live-exam-row">
+                        <div style="display:flex; align-items:center; gap:14px;">
+                            <img src="{{ url_for('static', filename='img/Test Passed.png') }}" style="width:42px; height:42px;" alt="" />
+                            <div>
+                                <div style="font-weight: 700; color: #111827; font-size: 16px;">${ex.title}</div>
+                                <div style="font-size: 13px; color: #6b7280;">Duration: ${ex.duration} mins · Total Marks: ${ex.total_marks}</div>
+                            </div>
+                        </div>
+                        <a href="/student/exam/${ex.exam_id}" class="live-join-btn">join</a>
+                    </div>
+                `,
+            )
+            .join("");
+        } catch (e) {
+          container.innerHTML = `
+                    <div class="live-exam-row">
+                        <div style="color:#dc2626; font-size:14px;">Could not load exam list.</div>
+                    </div>
+                `;
+        }
+      }
+      document.addEventListener("DOMContentLoaded", loadStudentExams);
+    </script>
   </body>
 </html>

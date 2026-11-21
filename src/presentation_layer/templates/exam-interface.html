@@ -1,158 +1,487 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
+  <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
     <title>Exam Room - Quiz Examination System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='exam-interface-globals.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='exam-interface-style.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='exam-interface-globals.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='exam-interface-style.css') }}"
+    />
     <style>
-        .phng-n-tr-li, .phng-n-tr-li-2, .np-bi, .nt-hnh-ng, .n-i-dung-wrapper, .nh-du-cu-hi, .s-cu-hi, .s-cu-hi-2, .div-wrapper {
-            cursor: pointer;
-        }
-        .option-selected {
-            border: 2px solid #2563eb !important;
-            background-color: #eff6ff !important;
-        }
+      .phng-n-tr-li,
+      .phng-n-tr-li-2,
+      .np-bi,
+      .nt-hnh-ng,
+      .n-i-dung-wrapper,
+      .nh-du-cu-hi,
+      .q-grid-btn {
+        cursor: pointer;
+      }
+      .option-selected {
+        border: 2px solid #2563eb !important;
+        background-color: #eff6ff !important;
+      }
+      .q-grid-wrap {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        width: 100%;
+      }
+      .q-grid-btn {
+        height: 44px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: sans-serif;
+        font-weight: 600;
+        font-size: 15px;
+        border: 1px solid #cbd5e1;
+        background: #f1f5f9;
+        color: #1e293b;
+        position: relative;
+        transition: all 0.15s ease;
+      }
+      .q-grid-btn.replied {
+        background: #22c55e;
+        border-color: #16a34a;
+        color: #ffffff;
+      }
+      .q-grid-btn.current {
+        background: #2563eb;
+        border-color: #1d4ed8;
+        color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+      }
+      .q-grid-btn.bookmarked::after {
+        content: "";
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ef4444;
+      }
+      .written-box {
+        width: 100%;
+        min-height: 140px;
+        padding: 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        font-size: 15px;
+        font-family: sans-serif;
+        box-sizing: border-box;
+        outline: none;
+      }
+      .written-box:focus {
+        border-color: #2563eb;
+      }
+      .exam-status-banner {
+        position: fixed;
+        bottom: 18px;
+        right: 22px;
+        background: #1e293b;
+        color: #ffffff;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-family: sans-serif;
+        font-size: 13px;
+        z-index: 9999;
+        opacity: 0.92;
+      }
     </style>
-</head>
+  </head>
 
-<body>
-    <div class="exam-interface" id="examContainer" data-exam-id="{{ exam_id or 1 }}">
-        <div class="rectangle"></div>
-        <img class="gemini-generated" src="{{ url_for('static', filename='img/Gemini_Generated_Image_yb98nlyb98nlyb98-removebg-preview 1.png') }}" alt="" />
-        <div class="text-wrapper">Quiz Examination System</div>
-        <a href="{{ url_for('student_dashboard') }}" class="div" style="text-decoration: none;">Back</a>
-        <div class="thi-gian-v-np-bi">
-            <div class="m-ngc">
-                <div class="clock"><img class="vector" src="{{ url_for('static', filename='img/clock-3.png') }}" alt="" /></div>
-                <div class="n-i-dung" id="examTimerDisplay">00:45:32</div>
-            </div>
-            <div class="np-bi" id="submitExamBtn" onclick="submitExamAttempt()">
-                <div class="n-i-dung-2">Submit assignment</div>
-            </div>
+  <body>
+    <div
+      class="exam-interface"
+      id="examContainer"
+      data-exam-id="{{ exam_id or 1 }}"
+    >
+      <div class="rectangle"></div>
+      <img
+        class="gemini-generated"
+        src="{{ url_for('static', filename='img/Gemini_Generated_Image_yb98nlyb98nlyb98-removebg-preview 1.png') }}"
+        alt=""
+      />
+      <div class="text-wrapper" id="examHeaderTitle">
+        Quiz Examination System
+      </div>
+      <a
+        href="{{ url_for('student_dashboard') }}"
+        class="div"
+        style="text-decoration: none"
+        >Back</a
+      >
+      <div class="thi-gian-v-np-bi">
+        <div class="m-ngc">
+          <div class="clock">
+            <img
+              class="vector"
+              src="{{ url_for('static', filename='img/clock-3.png') }}"
+              alt=""
+            />
+          </div>
+          <div class="n-i-dung" id="examTimerDisplay">--:--:--</div>
         </div>
-        <div class="th-ni-dung">
-            <div class="n-i-dung-3" id="questionCounter">Câu 5 / 20</div>
-            <div class="ni-dung-cu-hi">
-                <p class="p" id="questionText">How many structures does an operating system have?</p>
-            </div>
-            <div class="cc-phng-n-tr-li" id="answerOptions">
-                <div class="phng-n-tr-li" onclick="selectOption(this)">
-                    <div class="nt-chn-p-n"></div>
-                    <div class="n-i-dung-4">A.&nbsp;&nbsp; 4</div>
-                </div>
-                <div class="phng-n-tr-li-2 option-selected" onclick="selectOption(this)">
-                    <div class="chn-wrapper">
-                        <div class="chn"></div>
-                    </div>
-                    <div class="n-i-dung-5">B.&nbsp;&nbsp; 3</div>
-                </div>
-                <div class="phng-n-tr-li" onclick="selectOption(this)">
-                    <div class="nt-chn-p-n"></div>
-                    <div class="n-i-dung-4">C.&nbsp;&nbsp; 1</div>
-                </div>
-                <div class="phng-n-tr-li" onclick="selectOption(this)">
-                    <div class="nt-chn-p-n"></div>
-                    <div class="n-i-dung-4">D.&nbsp;&nbsp; 2</div>
-                </div>
-            </div>
-            <div class="iu-hng-cu-hi">
-                <div class="nt-hnh-ng" onclick="navigateQuestion(-1)">
-                    <div class="vector-wrapper"><img class="img" src="{{ url_for('static', filename='img/arrow-left.png') }}" alt="" /></div>
-                    <div class="n-i-dung-6">Previous question</div>
-                </div>
-                <div class="n-i-dung-wrapper" onclick="navigateQuestion(1)">
-                    <div class="n-i-dung-7">Next question&nbsp;&nbsp;→</div>
-                </div>
-            </div>
-            <div class="nh-du-cu-hi" id="bookmarkBtn" onclick="toggleBookmark()">
-                <div class="nh-du">
-                    <div class="vector-wrapper"><img class="vector-2" src="{{ url_for('static', filename='img/Ô đánh dấu.png') }}" alt="" /></div>
-                </div>
-                <div class="n-i-dung-8" id="bookmarkLabel">Bookmark the question</div>
-            </div>
+        <div
+          class="np-bi"
+          id="submitExamBtn"
+          onclick="submitExamAttempt(false)"
+        >
+          <div class="n-i-dung-2">Submit assignment</div>
         </div>
-        <div class="th-ni-dung-2">
-            <div class="n-i-dung-9">List of questions</div>
-            <div class="ch-thch-trng-thi">
-                <div class="trng-thi">
-                    <div class="ch-bo-trng-thi"></div>
-                    <div class="n-i-dung-10">Replied</div>
-                </div>
-                <div class="trng-thi">
-                    <div class="ch-bo-trng-thi-2"></div>
-                    <div class="n-i-dung-10">Not yet answered</div>
-                </div>
-                <div class="trng-thi">
-                    <div class="ch-bo-trng-thi-3"></div>
-                    <div class="n-i-dung-10">Tick</div>
-                </div>
-            </div>
-            <div class="li-cu-hi">
-                <div class="hng-cu-hi">
-                    <div class="s-cu-hi"><div class="n-i-dung-4">1</div></div>
-                    <div class="s-cu-hi"><div class="n-i-dung-4">2</div></div>
-                    <div class="s-cu-hi"><div class="n-i-dung-4">3</div></div>
-                    <div class="s-cu-hi"><div class="n-i-dung-4">4</div></div>
-                    <div class="div-wrapper"><div class="n-i-dung-11">5</div></div>
-                </div>
-                <div class="hng-cu-hi">
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">6</div></div>
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">7</div></div>
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">8</div></div>
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">9</div></div>
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">10</div></div>
-                </div>
-                <div class="hng-cu-hi">
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">11</div></div>
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">12</div></div>
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">13</div></div>
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">14</div></div>
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">15</div></div>
-                </div>
-                <div class="hng-cu-hi">
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">16</div></div>
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">17</div></div>
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">18</div></div>
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">19</div></div>
-                    <div class="s-cu-hi-2"><div class="n-i-dung-4">20</div></div>
-                </div>
-            </div>
-            <div class="khong-trng-danh-sch"></div>
+      </div>
+      <div class="th-ni-dung">
+        <div class="n-i-dung-3" id="questionCounter">Loading exam...</div>
+        <div class="ni-dung-cu-hi">
+          <p class="p" id="questionText">
+            Please wait while we prepare your exam session...
+          </p>
         </div>
+        <div class="cc-phng-n-tr-li" id="answerOptions"></div>
+        <div class="iu-hng-cu-hi">
+          <div class="nt-hnh-ng" onclick="navigateQuestion(-1)">
+            <div class="vector-wrapper">
+              <img
+                class="img"
+                src="{{ url_for('static', filename='img/arrow-left.png') }}"
+                alt=""
+              />
+            </div>
+            <div class="n-i-dung-6">Previous question</div>
+          </div>
+          <div class="n-i-dung-wrapper" onclick="navigateQuestion(1)">
+            <div class="n-i-dung-7">Next question&nbsp;&nbsp;→</div>
+          </div>
+        </div>
+        <div class="nh-du-cu-hi" id="bookmarkBtn" onclick="toggleBookmark()">
+          <div class="nh-du">
+            <div class="vector-wrapper">
+              <img
+                class="vector-2"
+                src="{{ url_for('static', filename='img/Ô đánh dấu.png') }}"
+                alt=""
+              />
+            </div>
+          </div>
+          <div class="n-i-dung-8" id="bookmarkLabel">Bookmark the question</div>
+        </div>
+      </div>
+      <div class="th-ni-dung-2">
+        <div class="n-i-dung-9">List of questions</div>
+        <div class="ch-thch-trng-thi">
+          <div class="trng-thi">
+            <div class="ch-bo-trng-thi"></div>
+            <div class="n-i-dung-10">Replied</div>
+          </div>
+          <div class="trng-thi">
+            <div class="ch-bo-trng-thi-2"></div>
+            <div class="n-i-dung-10">Not yet answered</div>
+          </div>
+          <div class="trng-thi">
+            <div class="ch-bo-trng-thi-3"></div>
+            <div class="n-i-dung-10">Tick</div>
+          </div>
+        </div>
+        <div class="li-cu-hi">
+          <div class="q-grid-wrap" id="questionGridContainer"></div>
+        </div>
+        <div class="khong-trng-danh-sch"></div>
+      </div>
     </div>
 
-    <script src="{{ url_for('static', filename='exam_timer.js') }}"></script>
+    <div class="exam-status-banner" id="saveStatusBanner">
+      Connecting to exam server...
+    </div>
+
     <script>
-        let currentQuestion = 5;
-        const totalQuestions = 20;
+      const examId = parseInt(
+        document.getElementById("examContainer").dataset.examId || "1",
+        10,
+      );
+      let attemptId = null;
+      let questions = [];
+      let currentIndex = 0;
+      let selectedAnswers = {}; // question_id -> selected_answer_id
+      let writtenAnswers = {}; // question_id -> text
+      let bookmarkedSet = new Set();
+      let remainingSeconds = 0;
+      let timerInterval = null;
+      let isSubmitting = false;
 
-        function selectOption(el) {
-            document.querySelectorAll("#answerOptions > div").forEach(opt => opt.classList.remove("option-selected"));
-            el.classList.add("option-selected");
-        }
+      function setStatus(text) {
+        const banner = document.getElementById("saveStatusBanner");
+        if (banner) banner.textContent = text;
+      }
 
-        function navigateQuestion(delta) {
-            const next = currentQuestion + delta;
-            if (next >= 1 && next <= totalQuestions) {
-                currentQuestion = next;
-                document.getElementById("questionCounter").textContent = `Câu ${currentQuestion} / ${totalQuestions}`;
+      function formatHMS(totalSec) {
+        const sec = Math.max(0, Math.floor(totalSec));
+        const h = String(Math.floor(sec / 3600)).padStart(2, "0");
+        const m = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
+        const s = String(sec % 60).padStart(2, "0");
+        return `${h}:${m}:${s}`;
+      }
+
+      function startCountdown(seconds) {
+        remainingSeconds = Math.max(0, Math.floor(seconds));
+        const display = document.getElementById("examTimerDisplay");
+        display.textContent = formatHMS(remainingSeconds);
+
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+          remainingSeconds -= 1;
+          display.textContent = formatHMS(remainingSeconds);
+          if (remainingSeconds <= 60) {
+            display.style.color = "#dc2626";
+          }
+          if (remainingSeconds <= 0) {
+            clearInterval(timerInterval);
+            submitExamAttempt(true);
+          }
+        }, 1000);
+      }
+
+      async function initExamSession() {
+        try {
+          const res = await fetch(`/student/exams/${examId}/start`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          });
+          const data = await res.json();
+          if (!res.ok || data.success === false) {
+            document.getElementById("questionCounter").textContent =
+              "Cannot start exam";
+            document.getElementById("questionText").textContent =
+              data.message || "Exam is not available right now.";
+            setStatus(data.message || "Failed to load exam");
+            return;
+          }
+
+          const attempt = data.attempt || {};
+          attemptId = attempt.attempt_id;
+          const examInfo = data.exam || {};
+          if (examInfo.title) {
+            document.getElementById("examHeaderTitle").textContent =
+              examInfo.title;
+          }
+
+          questions = Array.isArray(data.questions) ? data.questions : [];
+          const savedList = Array.isArray(data.saved_answers)
+            ? data.saved_answers
+            : [];
+          savedList.forEach((sa) => {
+            if (
+              sa.selected_answer_id !== null &&
+              sa.selected_answer_id !== undefined
+            ) {
+              selectedAnswers[sa.question_id] = Number(sa.selected_answer_id);
             }
-        }
-
-        function toggleBookmark() {
-            const label = document.getElementById("bookmarkLabel");
-            label.textContent = label.textContent === "Bookmark the question" ? "Bookmarked ★" : "Bookmark the question";
-        }
-
-        function submitExamAttempt() {
-            if (confirm("Are you sure you want to submit this exam?")) {
-                window.location.href = "{{ url_for('student_result_page', attempt_id=1) }}";
+            if (sa.answer_content) {
+              writtenAnswers[sa.question_id] = sa.answer_content;
             }
+          });
+
+          const rem =
+            typeof data.remaining_seconds === "number"
+              ? data.remaining_seconds
+              : Number(examInfo.duration || 30) * 60;
+          startCountdown(rem);
+
+          if (questions.length === 0) {
+            document.getElementById("questionCounter").textContent =
+              "Câu 0 / 0";
+            document.getElementById("questionText").textContent =
+              "This exam currently has no questions.";
+            setStatus("Ready (0 questions)");
+            return;
+          }
+
+          currentIndex = 0;
+          renderQuestionGrid();
+          renderCurrentQuestion();
+          setStatus(`Attempt #${attemptId} active · Auto-save enabled`);
+        } catch (err) {
+          document.getElementById("questionText").textContent =
+            "Network error while loading exam.";
+          setStatus("Connection error");
         }
+      }
+
+      function renderQuestionGrid() {
+        const grid = document.getElementById("questionGridContainer");
+        grid.innerHTML = questions
+          .map((q, idx) => {
+            const qid = q.question_id;
+            const isReplied =
+              selectedAnswers[qid] !== undefined ||
+              Boolean((writtenAnswers[qid] || "").trim());
+            const isCurrent = idx === currentIndex;
+            const isBookmarked = bookmarkedSet.has(qid);
+            const classes = [
+              "q-grid-btn",
+              isReplied ? "replied" : "",
+              isCurrent ? "current" : "",
+              isBookmarked ? "bookmarked" : "",
+            ]
+              .filter(Boolean)
+              .join(" ");
+            return `<div class="${classes}" onclick="jumpToQuestion(${idx})">${idx + 1}</div>`;
+          })
+          .join("");
+      }
+
+      function renderCurrentQuestion() {
+        if (!questions.length) return;
+        const q = questions[currentIndex];
+        const qid = q.question_id;
+        document.getElementById("questionCounter").textContent =
+          `Câu ${currentIndex + 1} / ${questions.length}`;
+        document.getElementById("questionText").textContent = q.content || "";
+
+        const bmLabel = document.getElementById("bookmarkLabel");
+        bmLabel.textContent = bookmarkedSet.has(qid)
+          ? "Bookmarked ★"
+          : "Bookmark the question";
+
+        const optionsEl = document.getElementById("answerOptions");
+        const qType = String(
+          q.question_type || "MULTIPLE_CHOICE",
+        ).toUpperCase();
+
+        if (qType === "WRITTEN") {
+          const existingText = writtenAnswers[qid] || "";
+          optionsEl.innerHTML = `
+                    <textarea class="written-box" id="writtenAnswerInput"
+                        placeholder="Type your answer here..."
+                        onblur="saveWrittenAnswer(${qid}, this.value)">${existingText}</textarea>
+                `;
+          return;
+        }
+
+        const answers = Array.isArray(q.answers) ? q.answers : [];
+        const chosenId = selectedAnswers[qid];
+        optionsEl.innerHTML = answers
+          .map((ans, idx) => {
+            const letter = String.fromCharCode(65 + idx);
+            const isSelected = Number(ans.answer_id) === Number(chosenId);
+            return `
+                    <div class="${isSelected ? "phng-n-tr-li-2 option-selected" : "phng-n-tr-li"}"
+                         onclick="chooseOption(${qid}, ${ans.answer_id})">
+                        ${
+                          isSelected
+                            ? '<div class="chn-wrapper"><div class="chn"></div></div>'
+                            : '<div class="nt-chn-p-n"></div>'
+                        }
+                        <div class="${isSelected ? "n-i-dung-5" : "n-i-dung-4"}">${letter}.&nbsp;&nbsp; ${ans.content}</div>
+                    </div>
+                `;
+          })
+          .join("");
+      }
+
+      async function chooseOption(questionId, answerId) {
+        selectedAnswers[questionId] = Number(answerId);
+        renderCurrentQuestion();
+        renderQuestionGrid();
+        setStatus("Saving answer...");
+        try {
+          const res = await fetch(
+            `/student/exams/attempts/${attemptId}/answers`,
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                question_id: questionId,
+                selected_answer_id: answerId,
+              }),
+            },
+          );
+          const json = await res.json();
+          setStatus(res.ok ? "Answer saved ✓" : json.message || "Save warning");
+        } catch (e) {
+          setStatus("Offline — will retry on next action");
+        }
+      }
+
+      async function saveWrittenAnswer(questionId, text) {
+        writtenAnswers[questionId] = text;
+        renderQuestionGrid();
+        if (!attemptId) return;
+        setStatus("Saving written answer...");
+        try {
+          await fetch(`/student/exams/attempts/${attemptId}/answers`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              question_id: questionId,
+              answer_content: text,
+            }),
+          });
+          setStatus("Answer saved ✓");
+        } catch (e) {
+          setStatus("Save warning");
+        }
+      }
+
+      function jumpToQuestion(idx) {
+        if (idx >= 0 && idx < questions.length) {
+          currentIndex = idx;
+          renderCurrentQuestion();
+          renderQuestionGrid();
+        }
+      }
+
+      function navigateQuestion(delta) {
+        jumpToQuestion(currentIndex + delta);
+      }
+
+      function toggleBookmark() {
+        if (!questions.length) return;
+        const qid = questions[currentIndex].question_id;
+        if (bookmarkedSet.has(qid)) bookmarkedSet.delete(qid);
+        else bookmarkedSet.add(qid);
+        renderCurrentQuestion();
+        renderQuestionGrid();
+      }
+
+      async function submitExamAttempt(automatic = false) {
+        if (isSubmitting) return;
+        if (!attemptId) {
+          window.location.href = "{{ url_for('student_dashboard') }}";
+          return;
+        }
+        if (
+          !automatic &&
+          !confirm("Are you sure you want to submit this exam?")
+        ) {
+          return;
+        }
+
+        isSubmitting = true;
+        if (timerInterval) clearInterval(timerInterval);
+        setStatus("Submitting & grading exam...");
+
+        try {
+          await fetch(`/student/exams/attempts/${attemptId}/submit`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ automatic: automatic }),
+          });
+          await fetch(`/api/attempts/${attemptId}/grade`, { method: "POST" });
+        } catch (e) {
+          // Even if submit endpoint already closed attempt, redirect to result page which grades on load
+        }
+        window.location.href = `/student/result/${attemptId}`;
+      }
+
+      document.addEventListener("DOMContentLoaded", initExamSession);
     </script>
-</body>
-
+  </body>
 </html>
