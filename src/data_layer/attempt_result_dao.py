@@ -180,4 +180,5 @@ def get_answers_by_attempt(attempt_id: int):
                ORDER BY student_answer_id""",
             (attempt_id,),
         )
-        return [dict(row) for row in cursor.fetchall()]
+        rows: Any = cursor.fetchall()
+        return [dict(row) for row in rows]
