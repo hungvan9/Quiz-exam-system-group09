@@ -1,0 +1,11 @@
+test_tc01_login_valid_credentials (tests.test_auth_cases.TestAuthCases.test_tc01_login_valid_credentials)
+TC01: Login with valid username and password. ... ok
+test_tc02_login_wrong_password (tests.test_auth_cases.TestAuthCases.test_tc02_login_wrong_password)
+TC02: Login with valid username and wrong password. ... ok
+test_tc03_register_account_success (tests.test_auth_cases.TestAuthCases.test_tc03_register_account_success)
+TC03: Register a new student account with valid inputs. ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.003s
+
+OK
