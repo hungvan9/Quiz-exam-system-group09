@@ -7,8 +7,10 @@ from flask import Flask, jsonify, redirect, render_template, request, session, u
 from src.business_layer.auth_service import AuthService
 from src.business_layer.exam_service import ExamService
 from src.business_layer.grading_service import GradingService
+from src.data_layer import course_exam_dao
 from src.data_layer.db_connection import DatabaseConnection
 from src.presentation_layer.admin_routes import admin_bp
+from src.presentation_layer.student_routes import configure_exam_routes
 from src.presentation_layer.teacher_routes import teacher_bp
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -20,11 +22,12 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", "quiz-exam-system-group09-secret"
 app.permanent_session_lifetime = timedelta(days=30)
 
 auth_service = AuthService()
-exam_service = ExamService()
+exam_service = ExamService(course_exam_dao)
 grading_service = GradingService()
 
 app.register_blueprint(admin_bp)
 app.register_blueprint(teacher_bp)
+app.register_blueprint(configure_exam_routes(course_exam_dao))
 
 
 def _redirect_by_role(role: str):
@@ -57,11 +60,11 @@ def login():
         return render_template("login.html", error=message), 401
 
     session.permanent = remember
-    session["user_id"] = user["user_id"]
-    session["username"] = user["username"]
-    session["name"] = user["name"]
-    session["role"] = user["role"]
-    return _redirect_by_role(user["role"])
+    session["user_id"] = user.user_id
+    session["username"] = user.username
+    session["name"] = user.name
+    session["role"] = user.role
+    return _redirect_by_role(user.role)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -74,7 +77,7 @@ def register():
     email = request.form.get("email", "").strip()
     password = request.form.get("password", "")
 
-    success, message, _ = auth_service.register_student(name, username, email, password)
+    success, message = auth_service.register(name, email, username, password)
     if not success:
         return render_template("register.html", error=message), 400
     return render_template("login.html", success=message)
@@ -88,11 +91,7 @@ def logout():
 
 # ==================== DASHBOARD PAGES ====================
 
-@app.route("/admin/dashboard")
-def admin_dashboard():
-    if session.get("role") != "ADMIN":
-        return redirect(url_for("login"))
-    return render_template("admin.html")
+# admin_dashboard registered in admin_routes.py
 
 
 @app.route("/teacher/dashboard")
@@ -116,7 +115,7 @@ def student_dashboard():
 def student_available_exams():
     if "user_id" not in session:
         return jsonify({"success": False, "message": "Unauthorized"}), 401
-    exams = exam_service.get_available_exams_for_student(session["user_id"])
+    exams = exam_service.list_available_exams(session["user_id"])
     return jsonify({"success": True, "exams": exams}), 200
 
 
@@ -132,7 +131,7 @@ def api_student_start_exam(exam_id: int):
     if session.get("role") != "STUDENT":
         return jsonify({"success": False, "message": "Unauthorized"}), 401
     try:
-        data = exam_service.start_or_resume_exam(session["user_id"], exam_id)
+        data = exam_service.start_exam(session["user_id"], exam_id)
         return jsonify({"success": True, **data}), 200
     except PermissionError as exc:
         return jsonify({"success": False, "message": str(exc)}), 403
@@ -168,7 +167,8 @@ def api_student_submit_exam(attempt_id: int):
     if session.get("role") != "STUDENT":
         return jsonify({"success": False, "message": "Unauthorized"}), 401
     try:
-        result = grading_service.submit_and_grade_attempt(session["user_id"], attempt_id)
+        exam_service.submit_exam(session["user_id"], attempt_id)
+        result = grading_service.grade_attempt(attempt_id)
         return jsonify({
             "success": True,
             "result": result,
@@ -185,7 +185,7 @@ def student_result_page(attempt_id: int):
     if session.get("role") != "STUDENT":
         return redirect(url_for("login"))
     try:
-        result = grading_service.get_result_detail(session["user_id"], attempt_id)
+        result = grading_service.get_or_grade_result(attempt_id)
         return render_template("result.html", result=result)
     except (PermissionError, ValueError):
         return redirect(url_for("student_dashboard"))
